@@ -1,0 +1,35 @@
+# --- Claude / Claude Code ---
+.claude/
+**/.claude/
+CLAUDE.md
+**/CLAUDE.md
+.claude.json
+.claude.json.backup
+.clauderc
+claude_desktop_config.json
+.mcp.json
+
+# --- dbt ---
+target/
+dbt_packages/
+dbt_modules/
+logs/
+.user.yml
+
+# --- Secrets / env ---
+.env
+.env.*
+!.env.example
+
+# --- Python venv ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+dbt_internal_packages/

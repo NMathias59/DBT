@@ -1,0 +1,17 @@
+dbt_clickhouse_project:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      schema: "{{ env_var('DBT_CH_SCHEMA', 'default') }}"
+      host: "{{ env_var('DBT_CH_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_CH_PORT', '8123') | as_number }}"
+      user: "{{ env_var('DBT_CH_USER', 'default') }}"
+      password: "{{ env_var('DBT_CH_PASSWORD', '') }}"
+      # true = HTTPS/native-secure, false = plain HTTP/native
+      secure: "{{ env_var('DBT_CH_SECURE', 'False') | as_bool }}"
+      # true = use the native TCP protocol (port 9000/9440),
+      # false = use the HTTP protocol (port 8123/8443)
+      driver: "{{ env_var('DBT_CH_DRIVER', 'http') }}"
+      verify: True
+      threads: 4
