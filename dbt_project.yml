@@ -26,6 +26,8 @@ models:
     # Config indicated by + and applies to all files under models/example/
     staging:
       +materialized: view
+      DB_WH_Digital_gaming:
+        +schema: DB_WH_DIGITAL_GAMING
     intermediate:
       +materialized: ephemeral
     marts:
