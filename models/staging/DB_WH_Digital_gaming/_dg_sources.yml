@@ -7,3 +7,38 @@ sources:
       - name: achievements
       - name: chat_members
       - name: chat_messages
+      - name: chats
+      - name: comments
+      - name: developers
+      - name: dlcs
+      - name: fraud_flags
+      - name: friend_requests
+      - name: friends
+      - name: game_genres
+      - name: game_tags
+      - name: games
+      - name: genres
+      - name: group_members
+      - name: groups
+      - name: inventories
+      - name: items
+      - name: libraries
+      - name: login_events
+      - name: market_listings
+      - name: market_transactions
+      - name: news_articles
+      - name: payment_methods
+      - name: profiles
+      - name: publishers
+      - name: purchase_items
+      - name: purchases
+      - name: review_votes
+      - name: reviews
+      - name: screenshots
+      - name: subscription_plans
+      - name: subscriptions
+      - name: system_requirements
+      - name: tags
+      - name: user_achievements
+      - name: users
+      - name: wishlists

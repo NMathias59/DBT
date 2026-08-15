@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: stg_dg__achievements
+    description: Staging des succès (achievements) du domaine Digital Gaming.
+    columns:
+      - name: achievement_id
+        description: Identifiant unique du succès.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu auquel le succès est rattaché.
+        data_tests:
+          - not_null
+      - name: name
+        description: Nom du succès.
+        data_tests:
+          - not_null
+      - name: points
+        description: Points attribués pour ce succès.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_chat_members
+    description: Staging des membres de chat du domaine Digital Gaming.
+    columns:
+      - name: chat_id
+        description: Identifiant du chat.
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Identifiant de l'utilisateur membre du chat.
+        data_tests:
+          - not_null
+      - name: joined_at
+        description: Date/heure à laquelle l'utilisateur a rejoint le chat.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_chat_messages
+    description: Staging des messages de chat du domaine Digital Gaming.
+    columns:
+      - name: message_id
+        description: Identifiant unique du message.
+        data_tests:
+          - not_null
+          - unique
+      - name: chat_id
+        description: Chat auquel le message appartient.
+        data_tests:
+          - not_null
+      - name: sender_id
+        description: Utilisateur ayant envoyé le message.
+        data_tests:
+          - not_null
+      - name: sent_at
+        description: Date/heure d'envoi du message.
+        data_tests:
+          - not_null
+  
+  - name: stg_dg_chats
+    description: Staging des chats du domaine Digital Gaming.
+    columns:
+      - name: chat_id
+        description: Identifiant unique du chat.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du chat.
+        data_tests:
+          - not_null
+      - name: created_at
+        description: Date/heure de création du chat.
+        data_tests:
+          - not_null
