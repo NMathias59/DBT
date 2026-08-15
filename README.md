@@ -1,6 +1,37 @@
 # dbt_clickhouse_project
 
-Projet dbt Core connecté à ClickHouse.
+Projet dbt Core connecté à ClickHouse pour la modélisation des données du groupe media/e-commerce
+(gaming, musique, vidéo, procurement, etc.).
+
+## Structure du projet
+
+```
+models/
+├── staging/                       # Vues 1:1 sur les tables sources, nommage + nettoyage
+│   ├── DB_WH_Digital_gaming/      # ✅ implémenté (achievements, chats, chat_members, chat_messages...)
+│   ├── DB_WH_Digital_music/       # 🚧 à venir
+│   ├── DB_WH_Digital_video/       # 🚧 à venir
+│   ├── DB_WH_Group_procurement/   # 🚧 à venir
+│   ├── DB_WH_IMDB/                # 🚧 à venir
+│   ├── DB_WH_Market_intelligence/ # 🚧 à venir
+│   ├── DB_WH_Physical_gaming/     # 🚧 à venir
+│   ├── DB_WH_Physical_music/      # 🚧 à venir
+│   ├── DB_WH_Physical_video/      # 🚧 à venir
+│   ├── DB_WH_Seo_marketing/       # 🚧 à venir
+│   └── DB_WH_Support_reference/   # 🚧 à venir
+└── marts/                         # Modèles métier (tables), pas encore démarrés
+```
+
+Chaque dossier de domaine sous `staging/` contient (une fois implémenté) :
+- `_<domaine>_sources.yml` : déclaration des tables sources ClickHouse (schéma `DB_WH_*`)
+- `_<domaine>__models.yml` : documentation et `data_tests` (not_null, unique, ...) des modèles staging
+- `_<domaine>__docs.md` : documentation additionnelle
+- `stg_<domaine>__*.sql` : un modèle staging par table source
+
+Materialization configurée dans `dbt_project.yml` :
+- `staging` → `view`
+- `intermediate` → `ephemeral`
+- `marts` → `table`
 
 ## Setup
 
@@ -26,3 +57,12 @@ $env:DBT_PROFILES_DIR = "."
 .venv\Scripts\dbt.exe run
 .venv\Scripts\dbt.exe test
 ```
+
+## État d'avancement
+
+- [x] Configuration initiale du projet dbt + connexion ClickHouse
+- [x] Sources et modèles staging — Digital Gaming
+- [ ] Sources et modèles staging — autres domaines (Digital Music, Digital Video, Physical Gaming/Music/Video,
+      Group Procurement, IMDB, Market Intelligence, Seo Marketing, Support Reference)
+- [ ] Modèles intermediate
+- [ ] Modèles marts
