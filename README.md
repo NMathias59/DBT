@@ -8,7 +8,7 @@ Projet dbt Core connecté à ClickHouse pour la modélisation des données du gr
 ```
 models/
 ├── staging/                       # Vues 1:1 sur les tables sources, nommage + nettoyage
-│   ├── DB_WH_Digital_gaming/      # ✅ implémenté (achievements, chats, chat_members, chat_messages...)
+│   ├── DB_WH_Digital_gaming/      # ✅ implémenté (37 tables sources)
 │   ├── DB_WH_Digital_music/       # 🚧 à venir
 │   ├── DB_WH_Digital_video/       # 🚧 à venir
 │   ├── DB_WH_Group_procurement/   # 🚧 à venir
@@ -61,7 +61,7 @@ $env:DBT_PROFILES_DIR = "."
 ## État d'avancement
 
 - [x] Configuration initiale du projet dbt + connexion ClickHouse
-- [x] Sources et modèles staging — Digital Gaming
+- [x] Sources et modèles staging — Digital Gaming (37 modèles staging + data tests not_null/unique)
 - [ ] Sources et modèles staging — autres domaines (Digital Music, Digital Video, Physical Gaming/Music/Video,
       Group Procurement, IMDB, Market Intelligence, Seo Marketing, Support Reference)
 - [ ] Modèles intermediate

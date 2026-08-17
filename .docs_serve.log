@@ -1,0 +1,17 @@
+[0m07:57:38  Running with dbt=1.12.2
+Serving docs at 8080
+To access from your browser, navigate to: http://localhost:8080
+
+
+
+Press Ctrl+C to exit.
+127.0.0.1 - - [17/Aug/2026 09:57:39] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 09:57:39] "GET /manifest.json?cb=1786953459862 HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 09:57:39] "GET /catalog.json?cb=1786953459862 HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 09:57:40] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 09:57:40] "GET /%7B%7B%20getIcon(item.type,%20'on')%20%7D%7D HTTP/1.1" 404 -
+127.0.0.1 - - [17/Aug/2026 09:57:40] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 09:57:40] "GET /%7B%7B%20getIcon(item.type,%20'off')%20%7D%7D HTTP/1.1" 404 -
+127.0.0.1 - - [17/Aug/2026 09:57:40] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 09:57:40] "GET /$%7Brequire('./assets/favicons/favicon.ico')%7D HTTP/1.1" 404 -
+127.0.0.1 - - [17/Aug/2026 09:57:54] "GET / HTTP/1.1" 200 -

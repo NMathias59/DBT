@@ -3,6 +3,7 @@ version: 2
 sources:
   - name: DB_WH_Digital_gaming
     schema: DB_WH_DIGITAL_GAMING
+    description: "{{ doc('dg_overview') }}"
     tables:
       - name: achievements
       - name: chat_members

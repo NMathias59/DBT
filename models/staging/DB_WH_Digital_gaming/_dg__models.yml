@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_dg__achievements
+  - name: stg_dg_achievements
     description: Staging des succès (achievements) du domaine Digital Gaming.
     columns:
       - name: achievement_id
@@ -73,5 +73,707 @@ models:
           - not_null
       - name: created_at
         description: Date/heure de création du chat.
+        data_tests:
+          - not_null
+  - name: stg_dg_comments
+    description: Staging des commentaires (comments) du domaine Digital Gaming.
+    columns:
+      - name: comment_id
+        description: Identifiant unique du commentaire.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant posté le commentaire.
+        data_tests:
+          - not_null
+      - name: screenshot_id
+        description: Capture d'écran commentée, le cas échéant.
+      - name: profile_id
+        description: Profil commenté, le cas échéant.
+      - name: created_at
+        description: Date/heure de création du commentaire.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_developers
+    description: Staging des développeurs (developers) du domaine Digital Gaming.
+    columns:
+      - name: developer_id
+        description: Identifiant unique du développeur.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du développeur.
+        data_tests:
+          - not_null
+      - name: founded_date
+        description: Date de fondation du studio.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_dlcs
+    description: Staging des contenus téléchargeables (dlcs) du domaine Digital Gaming.
+    columns:
+      - name: dlc_id
+        description: Identifiant unique du DLC.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu auquel le DLC est rattaché.
+        data_tests:
+          - not_null
+      - name: title
+        description: Titre du DLC.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix du DLC.
+        data_tests:
+          - not_null
+      - name: release_date
+        description: Date de sortie du DLC.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_fraud_flags
+    description: Staging des signalements de fraude (fraud_flags) du domaine Digital Gaming.
+    columns:
+      - name: fraud_flag_id
+        description: Identifiant unique du signalement.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur signalé.
+        data_tests:
+          - not_null
+      - name: flagged_at
+        description: Date/heure du signalement.
+        data_tests:
+          - not_null
+      - name: flag_type
+        description: Type de fraude signalée.
+        data_tests:
+          - not_null
+      - name: status
+        description: Statut de traitement du signalement.
+        data_tests:
+          - not_null
+      - name: related_market_transaction_id
+        description: Transaction du marché liée au signalement, le cas échéant.
+
+  - name: stg_dg_friend_requests
+    description: Staging des demandes d'ami (friend_requests) du domaine Digital Gaming.
+    columns:
+      - name: sender_id
+        description: Utilisateur émetteur de la demande.
+        data_tests:
+          - not_null
+      - name: receiver_id
+        description: Utilisateur destinataire de la demande.
+        data_tests:
+          - not_null
+      - name: sent_at
+        description: Date/heure d'envoi de la demande.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_friends
+    description: Staging des relations d'amitié (friends) du domaine Digital Gaming.
+    columns:
+      - name: user_id
+        description: Utilisateur.
+        data_tests:
+          - not_null
+      - name: friend_id
+        description: Ami de l'utilisateur.
+        data_tests:
+          - not_null
+      - name: established_at
+        description: Date/heure à laquelle l'amitié a été établie.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_game_genres
+    description: Staging de l'association jeux/genres (game_genres) du domaine Digital Gaming.
+    columns:
+      - name: game_id
+        description: Jeu associé.
+        data_tests:
+          - not_null
+      - name: genre_id
+        description: Genre associé.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_game_tags
+    description: Staging de l'association jeux/tags (game_tags) du domaine Digital Gaming.
+    columns:
+      - name: game_id
+        description: Jeu associé.
+        data_tests:
+          - not_null
+      - name: tag_id
+        description: Tag associé.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_games
+    description: Staging des jeux (games) du domaine Digital Gaming.
+    columns:
+      - name: game_id
+        description: Identifiant unique du jeu.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre du jeu.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix du jeu.
+        data_tests:
+          - not_null
+      - name: release_date
+        description: Date de sortie du jeu.
+        data_tests:
+          - not_null
+      - name: publisher_id
+        description: Éditeur du jeu.
+        data_tests:
+          - not_null
+      - name: developer_id
+        description: Développeur du jeu.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_genres
+    description: Staging des genres (genres) du domaine Digital Gaming.
+    columns:
+      - name: genre_id
+        description: Identifiant unique du genre.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du genre.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_group_members
+    description: Staging des membres de groupe (group_members) du domaine Digital Gaming.
+    columns:
+      - name: group_id
+        description: Groupe associé.
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Utilisateur membre du groupe.
+        data_tests:
+          - not_null
+      - name: joined_at
+        description: Date/heure à laquelle l'utilisateur a rejoint le groupe.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_groups
+    description: Staging des groupes (groups) du domaine Digital Gaming.
+    columns:
+      - name: group_id
+        description: Identifiant unique du groupe.
+        data_tests:
+          - not_null
+          - unique
+      - name: owner_id
+        description: Utilisateur propriétaire du groupe.
+        data_tests:
+          - not_null
+      - name: name
+        description: Nom du groupe.
+        data_tests:
+          - not_null
+      - name: created_at
+        description: Date/heure de création du groupe.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_inventories
+    description: Staging des inventaires (inventories) du domaine Digital Gaming.
+    columns:
+      - name: inventory_id
+        description: Identifiant unique de l'entrée d'inventaire.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur propriétaire de l'objet.
+        data_tests:
+          - not_null
+      - name: item_id
+        description: Objet détenu.
+        data_tests:
+          - not_null
+      - name: acquired_at
+        description: Date/heure d'acquisition de l'objet.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_items
+    description: Staging des objets (items) du domaine Digital Gaming.
+    columns:
+      - name: item_id
+        description: Identifiant unique de l'objet.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu auquel l'objet appartient.
+        data_tests:
+          - not_null
+      - name: name
+        description: Nom de l'objet.
+        data_tests:
+          - not_null
+      - name: type
+        description: Type de l'objet.
+        data_tests:
+          - not_null
+      - name: rarity
+        description: Rareté de l'objet.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_libraries
+    description: Staging des bibliothèques de jeux (libraries) du domaine Digital Gaming.
+    columns:
+      - name: library_id
+        description: Identifiant unique de l'entrée de bibliothèque.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur propriétaire du jeu.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu possédé.
+        data_tests:
+          - not_null
+      - name: purchase_date
+        description: Date/heure d'achat du jeu.
+        data_tests:
+          - not_null
+      - name: playtime_minutes
+        description: Temps de jeu cumulé, en minutes.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_login_events
+    description: Staging des événements de connexion (login_events) du domaine Digital Gaming.
+    columns:
+      - name: login_event_id
+        description: Identifiant unique de l'événement de connexion.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur concerné.
+        data_tests:
+          - not_null
+      - name: event_time
+        description: Date/heure de l'événement.
+        data_tests:
+          - not_null
+      - name: event_type
+        description: Type d'événement (connexion, déconnexion, ...).
+        data_tests:
+          - not_null
+      - name: is_suspicious
+        description: Indique si l'événement est jugé suspect.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_market_listings
+    description: Staging des annonces du marché (market_listings) du domaine Digital Gaming.
+    columns:
+      - name: listing_id
+        description: Identifiant unique de l'annonce.
+        data_tests:
+          - not_null
+          - unique
+      - name: seller_id
+        description: Utilisateur vendeur.
+        data_tests:
+          - not_null
+      - name: item_id
+        description: Objet mis en vente.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix demandé.
+        data_tests:
+          - not_null
+      - name: listed_at
+        description: Date/heure de mise en vente.
+        data_tests:
+          - not_null
+      - name: is_sold
+        description: Indique si l'annonce a été vendue.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_market_transactions
+    description: Staging des transactions du marché (market_transactions) du domaine Digital Gaming.
+    columns:
+      - name: market_transaction_id
+        description: Identifiant unique de la transaction.
+        data_tests:
+          - not_null
+          - unique
+      - name: listing_id
+        description: Annonce vendue.
+        data_tests:
+          - not_null
+      - name: buyer_id
+        description: Utilisateur acheteur.
+        data_tests:
+          - not_null
+      - name: sold_at
+        description: Date/heure de la vente.
+        data_tests:
+          - not_null
+      - name: final_price
+        description: Prix final de la transaction.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_news_articles
+    description: Staging des articles d'actualité (news_articles) du domaine Digital Gaming.
+    columns:
+      - name: article_id
+        description: Identifiant unique de l'article.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu concerné par l'article.
+        data_tests:
+          - not_null
+      - name: title
+        description: Titre de l'article.
+        data_tests:
+          - not_null
+      - name: published_at
+        description: Date/heure de publication de l'article.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_payment_methods
+    description: Staging des moyens de paiement (payment_methods) du domaine Digital Gaming.
+    columns:
+      - name: payment_method_id
+        description: Identifiant unique du moyen de paiement.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur propriétaire du moyen de paiement.
+        data_tests:
+          - not_null
+      - name: provider
+        description: Fournisseur du moyen de paiement.
+        data_tests:
+          - not_null
+      - name: expiry_date
+        description: Date d'expiration du moyen de paiement.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_profiles
+    description: Staging des profils (profiles) du domaine Digital Gaming.
+    columns:
+      - name: profile_id
+        description: Identifiant unique du profil.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur associé au profil.
+        data_tests:
+          - not_null
+      - name: display_name
+        description: Nom affiché du profil.
+        data_tests:
+          - not_null
+      - name: level
+        description: Niveau du profil.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_publishers
+    description: Staging des éditeurs (publishers) du domaine Digital Gaming.
+    columns:
+      - name: publisher_id
+        description: Identifiant unique de l'éditeur.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom de l'éditeur.
+        data_tests:
+          - not_null
+      - name: founded_date
+        description: Date de fondation de l'éditeur.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_purchase_items
+    description: Staging des lignes d'achat (purchase_items) du domaine Digital Gaming.
+    columns:
+      - name: purchase_item_id
+        description: Identifiant unique de la ligne d'achat.
+        data_tests:
+          - not_null
+          - unique
+      - name: purchase_id
+        description: Achat auquel la ligne est rattachée.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu acheté, le cas échéant.
+      - name: dlc_id
+        description: DLC acheté, le cas échéant.
+      - name: price
+        description: Prix de la ligne d'achat.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_purchases
+    description: Staging des achats (purchases) du domaine Digital Gaming.
+    columns:
+      - name: purchase_id
+        description: Identifiant unique de l'achat.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant réalisé l'achat.
+        data_tests:
+          - not_null
+      - name: payment_method_id
+        description: Moyen de paiement utilisé.
+        data_tests:
+          - not_null
+      - name: total_amount
+        description: Montant total de l'achat.
+        data_tests:
+          - not_null
+      - name: purchased_at
+        description: Date/heure de l'achat.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_review_votes
+    description: Staging des votes sur les avis (review_votes) du domaine Digital Gaming.
+    columns:
+      - name: review_vote_id
+        description: Identifiant unique du vote.
+        data_tests:
+          - not_null
+          - unique
+      - name: review_id
+        description: Avis concerné par le vote.
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Utilisateur ayant voté.
+        data_tests:
+          - not_null
+      - name: is_helpful
+        description: Indique si le votant juge l'avis utile.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_reviews
+    description: Staging des avis (reviews) du domaine Digital Gaming.
+    columns:
+      - name: review_id
+        description: Identifiant unique de l'avis.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant rédigé l'avis.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu concerné par l'avis.
+        data_tests:
+          - not_null
+      - name: is_recommended
+        description: Indique si l'utilisateur recommande le jeu.
+        data_tests:
+          - not_null
+      - name: created_at
+        description: Date/heure de création de l'avis.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_screenshots
+    description: Staging des captures d'écran (screenshots) du domaine Digital Gaming.
+    columns:
+      - name: screenshot_id
+        description: Identifiant unique de la capture d'écran.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant publié la capture.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu concerné par la capture.
+        data_tests:
+          - not_null
+      - name: uploaded_at
+        description: Date/heure de publication de la capture.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_subscription_plans
+    description: Staging des formules d'abonnement (subscription_plans) du domaine Digital Gaming.
+    columns:
+      - name: plan_id
+        description: Identifiant unique de la formule.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom de la formule.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix de la formule.
+        data_tests:
+          - not_null
+      - name: billing_period_days
+        description: Durée du cycle de facturation, en jours.
+        data_tests:
+          - not_null
+      - name: is_active
+        description: Indique si la formule est active.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_subscriptions
+    description: Staging des abonnements (subscriptions) du domaine Digital Gaming.
+    columns:
+      - name: subscription_id
+        description: Identifiant unique de l'abonnement.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur abonné.
+        data_tests:
+          - not_null
+      - name: plan_id
+        description: Formule d'abonnement souscrite.
+        data_tests:
+          - not_null
+      - name: start_date
+        description: Date de début de l'abonnement.
+        data_tests:
+          - not_null
+      - name: end_date
+        description: Date de fin de l'abonnement, le cas échéant.
+      - name: status
+        description: Statut de l'abonnement.
+        data_tests:
+          - not_null
+      - name: auto_renew
+        description: Indique si l'abonnement se renouvelle automatiquement.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_system_requirements
+    description: Staging des configurations requises (system_requirements) du domaine Digital Gaming.
+    columns:
+      - name: requirement_id
+        description: Identifiant unique de la configuration requise.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu concerné par la configuration.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_tags
+    description: Staging des tags (tags) du domaine Digital Gaming.
+    columns:
+      - name: tag_id
+        description: Identifiant unique du tag.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du tag.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_user_achievements
+    description: Staging des succès débloqués (user_achievements) du domaine Digital Gaming.
+    columns:
+      - name: user_id
+        description: Utilisateur ayant débloqué le succès.
+        data_tests:
+          - not_null
+      - name: achievement_id
+        description: Succès débloqué.
+        data_tests:
+          - not_null
+      - name: unlocked_at
+        description: Date/heure de déblocage du succès.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_users
+    description: Staging des utilisateurs (users) du domaine Digital Gaming.
+    columns:
+      - name: user_id
+        description: Identifiant unique de l'utilisateur.
+        data_tests:
+          - not_null
+          - unique
+      - name: username
+        description: Nom d'utilisateur.
+        data_tests:
+          - not_null
+      - name: email
+        description: Adresse e-mail de l'utilisateur.
+        data_tests:
+          - not_null
+      - name: created_at
+        description: Date/heure de création du compte.
+        data_tests:
+          - not_null
+
+  - name: stg_dg_wishlists
+    description: Staging des listes de souhaits (wishlists) du domaine Digital Gaming.
+    columns:
+      - name: user_id
+        description: Utilisateur propriétaire de la liste de souhaits.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu ajouté à la liste de souhaits.
+        data_tests:
+          - not_null
+      - name: added_at
+        description: Date/heure d'ajout à la liste de souhaits.
         data_tests:
           - not_null
