@@ -59,6 +59,116 @@ models:
       - name: storage
         description: Espace de stockage requis.
 
+  - name: DIM_DATE
+    description: >
+      Dimension calendaire générique (réutilisable par tout domaine, pas seulement Digital Gaming).
+      Grain : une ligne par jour, 2020-01-01 à 2030-12-31.
+    columns:
+      - name: date_day
+        description: Date (grain jour).
+        data_tests:
+          - not_null
+          - unique
+      - name: date_id
+        description: Clé numérique YYYYMMDD (utile pour partitionnement/tri).
+        data_tests:
+          - not_null
+          - unique
+      - name: year
+        description: Année.
+        data_tests:
+          - not_null
+      - name: quarter
+        description: Trimestre (1-4).
+        data_tests:
+          - not_null
+      - name: month
+        description: Mois (1-12).
+        data_tests:
+          - not_null
+      - name: month_name
+        description: Nom du mois (en anglais).
+        data_tests:
+          - not_null
+      - name: day_of_month
+        description: Jour du mois (1-31).
+        data_tests:
+          - not_null
+      - name: day_of_week
+        description: Jour de la semaine (1=lundi ... 7=dimanche).
+        data_tests:
+          - not_null
+      - name: day_name
+        description: Nom du jour de la semaine (en anglais).
+        data_tests:
+          - not_null
+      - name: iso_week
+        description: Numéro de semaine ISO.
+        data_tests:
+          - not_null
+      - name: is_weekend
+        description: Indique si le jour est un samedi ou un dimanche.
+        data_tests:
+          - not_null
+      - name: year_month
+        description: Clé numérique YYYYMM, pratique pour des rollups mensuels.
+        data_tests:
+          - not_null
+
+  - name: DIM_DLCS
+    description: >
+      Dimension DLC, avec le jeu parent résolu en clair. Complète DIM_GAMES pour analyser les
+      ventes de DLC de FTC_SALES (product_type = 'dlc').
+    columns:
+      - name: dlc_id
+        description: Identifiant unique du DLC.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu auquel le DLC est rattaché.
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu parent.
+        data_tests:
+          - not_null
+      - name: dlc_title
+        description: Titre du DLC.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix catalogue du DLC.
+        data_tests:
+          - not_null
+      - name: release_date
+        description: Date de sortie du DLC.
+        data_tests:
+          - not_null
+
+  - name: DIM_PAYMENT_METHODS
+    description: >
+      Dimension moyen de paiement. Grain : une ligne par moyen de paiement (un utilisateur peut en
+      avoir plusieurs). account_number volontairement exclu (PII, pas de valeur analytique).
+    columns:
+      - name: payment_method_id
+        description: Identifiant unique du moyen de paiement.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur propriétaire du moyen de paiement.
+        data_tests:
+          - not_null
+      - name: provider
+        description: Fournisseur du moyen de paiement.
+        data_tests:
+          - not_null
+      - name: expiry_date
+        description: Date d'expiration du moyen de paiement.
+        data_tests:
+          - not_null
+
   - name: DIM_USERS
     description: >
       Dimension utilisateur, avec agrégats d'activité (logins, bibliothèque, succès débloqués).
@@ -142,6 +252,118 @@ models:
           Nombre de jours écoulés entre la sortie du DLC le plus proche (nearest_prior_dlc_id) et
           la création de l'avis. NULL si aucun DLC sorti avant. Filtrer sur une petite fenêtre
           (ex: 0-7 jours) pour repérer une vague d'avis liée à une sortie.
+
+  - name: FTC_NEWS_ARTICLES
+    description: >
+      Table de faits (factless) des articles publiés sur les jeux. Grain : une ligne = un article.
+      Sert à corréler dans le temps avec FTC_REVIEWS/FTC_SALES (ex: réaction des joueurs après une
+      publication).
+    columns:
+      - name: article_id
+        description: Identifiant unique de l'article.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu concerné par l'article.
+        data_tests:
+          - not_null
+      - name: title
+        description: Titre de l'article.
+        data_tests:
+          - not_null
+      - name: published_at
+        description: Date/heure de publication de l'article.
+        data_tests:
+          - not_null
+
+  - name: FTC_MARKET_LISTINGS
+    description: >
+      Table de faits des annonces mises en vente sur le marché secondaire. Grain : une ligne =
+      une annonce. Distinct de FTC_MARKET_TRANSACTIONS (grain = transaction) : une annonce peut ne
+      jamais se vendre, ou être liée à plusieurs transactions dans ce jeu de données. Full rebuild
+      (pas d'incrémental), is_sold est mutable après listed_at.
+    columns:
+      - name: listing_id
+        description: Identifiant unique de l'annonce.
+        data_tests:
+          - not_null
+          - unique
+      - name: seller_id
+        description: Utilisateur vendeur.
+        data_tests:
+          - not_null
+      - name: item_id
+        description: Objet mis en vente.
+        data_tests:
+          - not_null
+      - name: item_name
+        description: Nom de l'objet mis en vente.
+        data_tests:
+          - not_null
+      - name: item_type
+        description: Type de l'objet mis en vente.
+        data_tests:
+          - not_null
+      - name: item_rarity
+        description: Rareté de l'objet mis en vente.
+        data_tests:
+          - not_null
+      - name: listed_price
+        description: Prix affiché sur l'annonce.
+        data_tests:
+          - not_null
+      - name: listed_at
+        description: Date/heure de mise en vente.
+        data_tests:
+          - not_null
+      - name: is_sold
+        description: Statut "vendu" tel que déclaré par la source.
+        data_tests:
+          - not_null
+      - name: transaction_count
+        description: Nombre réel de transactions liées à cette annonce (0 si aucune).
+        data_tests:
+          - not_null
+      - name: is_sold_flag_consistent
+        description: >
+          Indique si is_sold est cohérent avec l'existence réelle d'une transaction
+          (is_sold = transaction_count > 0). false = incohérence constatée dans les données source.
+        data_tests:
+          - not_null
+
+  - name: FTC_FRAUD_FLAGS
+    description: >
+      Table de faits des signalements de fraude. Grain : une ligne = un signalement. Full rebuild
+      à chaque run (pas d'incrémental) car status évolue après flagged_at au fil de l'investigation.
+    columns:
+      - name: fraud_flag_id
+        description: Identifiant unique du signalement.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur signalé.
+        data_tests:
+          - not_null
+      - name: flagged_at
+        description: Date/heure du signalement.
+        data_tests:
+          - not_null
+      - name: flag_type
+        description: Type de fraude signalée.
+        data_tests:
+          - not_null
+      - name: status
+        description: Statut courant du signalement (investigation).
+        data_tests:
+          - not_null
+      - name: related_market_transaction_id
+        description: Transaction du marché liée au signalement, le cas échéant (NULL sinon).
+      - name: related_transaction_amount
+        description: Montant de la transaction liée, le cas échéant (NULL si aucune transaction liée).
+      - name: related_item_name
+        description: Objet de la transaction liée, le cas échéant (NULL si aucune transaction liée).
 
   - name: FTC_SUBSCRIPTIONS
     description: >
