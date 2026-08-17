@@ -20,6 +20,11 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+vars:
+  # Nombre de mois (en plus du mois en cours) rechargés en entier à chaque run incrémental
+  # insert_overwrite, pour couvrir les corrections tardives dans une partition déjà chargée.
+  dg_incremental_lookback_months: 1
+
 # Configuring models
 models:
   dbt_media_sales:
@@ -29,6 +34,8 @@ models:
       DB_WH_Digital_gaming:
         +schema: DB_WH_DIGITAL_GAMING
     intermediate:
-      +materialized: ephemeral
+      +materialized: view
+      DB_WH_Digital_gaming:
+        +schema: DB_WH_DIGITAL_GAMING
     marts:
       +materialized: table

@@ -1,0 +1,307 @@
+version: 2
+
+models:
+  - name: DIM_GAMES
+    description: >
+      Dimension jeu (catalogue). Grain : une ligne par jeu. Type 1 (pas d'historisation), full
+      rebuild à chaque run vu le faible volume. Éditeur/développeur résolus en clair, genres et
+      tags agrégés en tableaux, config système jointe.
+    columns:
+      - name: game_id
+        description: Identifiant unique du jeu.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre du jeu.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix catalogue du jeu.
+        data_tests:
+          - not_null
+      - name: release_date
+        description: Date de sortie du jeu.
+        data_tests:
+          - not_null
+      - name: publisher_id
+        description: Éditeur du jeu.
+        data_tests:
+          - not_null
+      - name: publisher_name
+        description: Nom de l'éditeur.
+        data_tests:
+          - not_null
+      - name: developer_id
+        description: Développeur du jeu.
+        data_tests:
+          - not_null
+      - name: developer_name
+        description: Nom du développeur.
+        data_tests:
+          - not_null
+      - name: genre_ids
+        description: Identifiants des genres associés au jeu.
+      - name: genre_names
+        description: Noms des genres associés au jeu.
+      - name: tag_ids
+        description: Identifiants des tags associés au jeu.
+      - name: tag_names
+        description: Noms des tags associés au jeu.
+      - name: operating_system
+        description: Système d'exploitation requis.
+      - name: processor
+        description: Processeur requis.
+      - name: memory
+        description: Mémoire vive requise.
+      - name: graphics
+        description: Carte graphique requise.
+      - name: storage
+        description: Espace de stockage requis.
+
+  - name: DIM_USERS
+    description: >
+      Dimension utilisateur, avec agrégats d'activité (logins, bibliothèque, succès débloqués).
+      Grain : une ligne par utilisateur. Full rebuild à chaque run, volume faible.
+    columns:
+      - name: user_id
+        description: Identifiant unique de l'utilisateur.
+        data_tests:
+          - not_null
+          - unique
+      - name: username
+        description: Nom d'utilisateur.
+        data_tests:
+          - not_null
+      - name: total_logins
+        description: Nombre total de connexions.
+        data_tests:
+          - not_null
+      - name: suspicious_logins
+        description: Nombre de connexions jugées suspectes.
+        data_tests:
+          - not_null
+      - name: last_login_at
+        description: Date/heure de la dernière connexion.
+      - name: games_owned
+        description: Nombre de jeux possédés (bibliothèque).
+        data_tests:
+          - not_null
+      - name: total_playtime_minutes
+        description: Temps de jeu cumulé, en minutes.
+        data_tests:
+          - not_null
+      - name: achievements_unlocked
+        description: Nombre de succès débloqués.
+        data_tests:
+          - not_null
+
+  - name: FTC_REVIEWS
+    description: >
+      Table de faits des avis postés sur les jeux. Grain : une ligne = un avis. Full rebuild à
+      chaque run (pas d'incrémental) car les compteurs de votes évoluent après la création de
+      l'avis -- voir commentaire dans le modèle.
+    columns:
+      - name: review_id
+        description: Identifiant unique de l'avis.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant rédigé l'avis.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu concerné par l'avis.
+        data_tests:
+          - not_null
+      - name: is_recommended
+        description: Indique si l'utilisateur recommande le jeu.
+        data_tests:
+          - not_null
+      - name: total_votes
+        description: Nombre total de votes reçus sur l'avis.
+        data_tests:
+          - not_null
+      - name: helpful_votes
+        description: Nombre de votes jugeant l'avis utile.
+        data_tests:
+          - not_null
+      - name: helpful_ratio
+        description: Part de votes utiles parmi les votes reçus (NULL si aucun vote).
+      - name: created_at
+        description: Date/heure de création de l'avis.
+        data_tests:
+          - not_null
+      - name: nearest_prior_dlc_id
+        description: >
+          DLC du jeu sorti le plus récemment avant cet avis (NULL si aucun DLC sorti avant).
+          Sert à contextualiser une chute de sentiment liée à une sortie de contenu.
+      - name: days_since_last_dlc_release
+        description: >
+          Nombre de jours écoulés entre la sortie du DLC le plus proche (nearest_prior_dlc_id) et
+          la création de l'avis. NULL si aucun DLC sorti avant. Filtrer sur une petite fenêtre
+          (ex: 0-7 jours) pour repérer une vague d'avis liée à une sortie.
+
+  - name: FTC_SUBSCRIPTIONS
+    description: >
+      Table de faits des abonnements souscrits. Grain : une ligne = un abonnement. Full rebuild à
+      chaque run (pas d'incrémental) car status/end_date/auto_renew évoluent après start_date --
+      voir commentaire dans le modèle.
+    columns:
+      - name: subscription_id
+        description: Identifiant unique de l'abonnement.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur abonné.
+        data_tests:
+          - not_null
+      - name: plan_id
+        description: Formule d'abonnement souscrite.
+        data_tests:
+          - not_null
+      - name: plan_name
+        description: Nom de la formule.
+        data_tests:
+          - not_null
+      - name: plan_price
+        description: Prix de la formule (mesure -- contribution MRR/ARR potentielle).
+        data_tests:
+          - not_null
+      - name: billing_period_days
+        description: Durée du cycle de facturation, en jours.
+        data_tests:
+          - not_null
+      - name: start_date
+        description: Date de début de l'abonnement.
+        data_tests:
+          - not_null
+      - name: end_date
+        description: Date de fin de l'abonnement, le cas échéant (NULL si toujours actif).
+      - name: status
+        description: Statut courant de l'abonnement.
+        data_tests:
+          - not_null
+      - name: auto_renew
+        description: Indique si l'abonnement se renouvelle automatiquement.
+        data_tests:
+          - not_null
+
+  - name: FTC_SALES
+    description: >
+      Table de faits des ventes primaires (achats de jeux/DLC). Grain : une ligne = un article
+      acheté (purchase_item). Incrémental insert_overwrite, partitionné par mois
+      (toYYYYMM(sale_date)) ; chaque run recharge entièrement les N derniers mois
+      (var dg_incremental_lookback_months) pour capter les corrections tardives.
+    columns:
+      - name: sale_id
+        description: Identifiant unique de la vente (= purchase_item_id).
+        data_tests:
+          - not_null
+          - unique
+      - name: purchase_id
+        description: Commande à laquelle la vente est rattachée (un achat peut contenir plusieurs ventes).
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Utilisateur acheteur.
+        data_tests:
+          - not_null
+      - name: payment_method_id
+        description: Moyen de paiement utilisé pour l'achat.
+        data_tests:
+          - not_null
+      - name: payment_provider
+        description: Fournisseur du moyen de paiement.
+        data_tests:
+          - not_null
+      - name: product_type
+        description: Type de produit vendu (game ou dlc).
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu acheté, si product_type = game.
+      - name: dlc_id
+        description: DLC acheté, si product_type = dlc.
+      - name: product_title
+        description: Titre du produit vendu (jeu ou DLC).
+        data_tests:
+          - not_null
+      - name: sale_amount
+        description: Montant de la vente.
+        data_tests:
+          - not_null
+      - name: sale_at
+        description: Date/heure de la vente.
+        data_tests:
+          - not_null
+      - name: sale_date
+        description: Date de la vente (jour), utilisée comme clé de partitionnement mensuel.
+        data_tests:
+          - not_null
+
+  - name: FTC_MARKET_TRANSACTIONS
+    description: >
+      Table de faits du marché secondaire (échanges C2C d'objets in-game). Grain : une ligne = une
+      transaction sur une annonce. Incrémental insert_overwrite, partitionné par mois
+      (toYYYYMM(sale_date)) ; mêmes règles de rechargement que FTC_SALES.
+    columns:
+      - name: market_transaction_id
+        description: Identifiant unique de la transaction.
+        data_tests:
+          - not_null
+          - unique
+      - name: listing_id
+        description: Annonce vendue.
+        data_tests:
+          - not_null
+      - name: seller_id
+        description: Utilisateur vendeur.
+        data_tests:
+          - not_null
+      - name: buyer_id
+        description: Utilisateur acheteur.
+        data_tests:
+          - not_null
+      - name: item_id
+        description: Objet échangé.
+        data_tests:
+          - not_null
+      - name: item_name
+        description: Nom de l'objet échangé.
+        data_tests:
+          - not_null
+      - name: item_type
+        description: Type de l'objet échangé.
+        data_tests:
+          - not_null
+      - name: item_rarity
+        description: Rareté de l'objet échangé.
+        data_tests:
+          - not_null
+      - name: listed_price
+        description: Prix affiché sur l'annonce.
+        data_tests:
+          - not_null
+      - name: final_price
+        description: Prix final de la transaction.
+        data_tests:
+          - not_null
+      - name: price_variance
+        description: Écart entre le prix final et le prix affiché (final_price - listed_price).
+        data_tests:
+          - not_null
+      - name: listed_at
+        description: Date/heure de mise en vente.
+        data_tests:
+          - not_null
+      - name: sold_at
+        description: Date/heure de la vente.
+        data_tests:
+          - not_null
+      - name: sale_date
+        description: Date de la vente (jour), utilisée comme clé de partitionnement mensuel.
+        data_tests:
+          - not_null
