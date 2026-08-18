@@ -15,3 +15,17 @@ Press Ctrl+C to exit.
 127.0.0.1 - - [17/Aug/2026 09:57:40] code 404, message File not found
 127.0.0.1 - - [17/Aug/2026 09:57:40] "GET /$%7Brequire('./assets/favicons/favicon.ico')%7D HTTP/1.1" 404 -
 127.0.0.1 - - [17/Aug/2026 09:57:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 10:59:05] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [17/Aug/2026 10:59:05] "GET /manifest.json?cb=1786957145825 HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 10:59:05] "GET /catalog.json?cb=1786957145825 HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 10:59:06] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 10:59:06] "GET /%7B%7B%20getIcon(item.type,%20'on')%20%7D%7D HTTP/1.1" 404 -
+127.0.0.1 - - [17/Aug/2026 10:59:06] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 10:59:06] "GET /%7B%7B%20getIcon(item.type,%20'off')%20%7D%7D HTTP/1.1" 404 -
+127.0.0.1 - - [17/Aug/2026 13:15:16] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [17/Aug/2026 13:15:16] "GET /manifest.json?cb=1786965316808 HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 13:15:16] "GET /catalog.json?cb=1786965316808 HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 13:15:17] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 13:15:17] "GET /%7B%7B%20getIcon(item.type,%20'on')%20%7D%7D HTTP/1.1" 404 -
+127.0.0.1 - - [17/Aug/2026 13:15:17] code 404, message File not found
+127.0.0.1 - - [17/Aug/2026 13:15:17] "GET /%7B%7B%20getIcon(item.type,%20'off')%20%7D%7D HTTP/1.1" 404 -

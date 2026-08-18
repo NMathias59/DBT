@@ -1,0 +1,647 @@
+version: 2
+
+models:
+  - name: wishlist_conversion_funnel
+    description: >
+      Funnel wishlist -> achat par jeu. Grain : game_id (photo d'ensemble, pas de tendance
+      mensuelle). "Conversion" = premier achat du jeu survenu à partir de la date de premier ajout
+      en wishlist (un achat antérieur à l'ajout ne compte pas comme conversion).
+    columns:
+      - name: game_id
+        description: Jeu concerné.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_title
+        description: Titre du jeu.
+        data_tests:
+          - not_null
+      - name: publisher_name
+        description: Éditeur du jeu.
+        data_tests:
+          - not_null
+      - name: total_wishlisted_users
+        description: Nombre d'utilisateurs distincts ayant mis le jeu en liste de souhaits.
+        data_tests:
+          - not_null
+      - name: total_converted_users
+        description: Nombre de ces utilisateurs ayant ensuite acheté le jeu.
+        data_tests:
+          - not_null
+      - name: conversion_rate_pct
+        description: total_converted_users / total_wishlisted_users * 100.
+        data_tests:
+          - not_null
+      - name: avg_days_to_conversion
+        description: >
+          Nombre moyen de jours entre l'ajout en wishlist et l'achat, pour les utilisateurs
+          convertis. NULL si aucune conversion.
+
+  - name: player_retention_cohorts
+    description: >
+      Rétention des joueurs par cohorte mensuelle de première connexion. Grain :
+      (cohort_month, months_since_cohort). Plafonné à 0-12 mois de recul.
+
+      Grille complète limitée aux combinaisons dont le mois cible ne dépasse pas le dernier mois
+      de connexion connu (pas de ligne "future"). retained_users = 0 est un vrai zéro dans cette
+      plage.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de cohort_month/months_since_cohort).
+        data_tests:
+          - not_null
+          - unique
+      - name: cohort_month
+        description: Mois de première connexion des utilisateurs de cette cohorte.
+        data_tests:
+          - not_null
+      - name: months_since_cohort
+        description: Nombre de mois écoulés depuis le mois de cohorte (0-12).
+        data_tests:
+          - not_null
+      - name: cohort_size
+        description: Nombre d'utilisateurs dans cette cohorte (constant pour tous les months_since_cohort).
+        data_tests:
+          - not_null
+      - name: retained_users
+        description: Nombre d'utilisateurs de la cohorte encore actifs (au moins une connexion) ce mois-là.
+        data_tests:
+          - not_null
+      - name: retention_rate_pct
+        description: retained_users / cohort_size * 100.
+        data_tests:
+          - not_null
+
+  - name: fraud_security_trends
+    description: >
+      Signalements de fraude et connexions suspectes dans le temps. Grain : month_start.
+
+      Pas de ventilation par flag_type (volume trop faible pour être lisible à ce grain -- filtrer
+      FTC_FRAUD_FLAGS directement si besoin). resolution_rate_pct est à 0%/NULL partout dans les
+      données actuelles : tous les signalements sont status='open'.
+
+      NOTE données : les 25 signalements de fraude ont tous exactement le même flagged_at
+      (génération synthétique en un seul lot) -- ce n'est pas un bug du modèle, juste une
+      particularité du jeu de données actuel.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: total_fraud_flags
+        description: Nombre de signalements de fraude ce mois-là.
+        data_tests:
+          - not_null
+      - name: resolved_fraud_flags
+        description: Nombre de ces signalements avec status != 'open'.
+        data_tests:
+          - not_null
+      - name: resolution_rate_pct
+        description: resolved_fraud_flags / total_fraud_flags * 100. NULL si aucun signalement ce mois-là.
+      - name: total_logins
+        description: Nombre total de connexions ce mois-là.
+        data_tests:
+          - not_null
+      - name: suspicious_logins
+        description: Nombre de ces connexions jugées suspectes.
+        data_tests:
+          - not_null
+      - name: suspicious_login_rate_pct
+        description: suspicious_logins / total_logins * 100. NULL si aucune connexion ce mois-là.
+  - name: subscription_revenue_trends
+    description: >
+      Revenu récurrent (MRR) mensuel des abonnements, abonnements/abonnés actifs, nouveaux
+      abonnements, résiliations et taux de résiliation. Grain : month_start.
+
+      mrr_usd = plan_price normalisé sur 30 jours (approximation MRR standard). "Actif ce mois-là"
+      = présent au moins un jour dans le mois (pas de prorata journalier). churn_rate_pct =
+      résiliations du mois / abonnements actifs au mois précédent, NULL au premier mois disponible.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: active_subscriptions
+        description: Nombre d'abonnements actifs ce mois-là.
+        data_tests:
+          - not_null
+      - name: active_subscribers
+        description: Nombre d'utilisateurs distincts avec au moins un abonnement actif ce mois-là.
+        data_tests:
+          - not_null
+      - name: mrr_usd
+        description: Revenu mensuel récurrent normalisé, en USD.
+        data_tests:
+          - not_null
+      - name: new_subscriptions
+        description: Nouveaux abonnements souscrits ce mois-là.
+        data_tests:
+          - not_null
+      - name: churned_subscriptions
+        description: Abonnements résiliés (end_date) ce mois-là.
+        data_tests:
+          - not_null
+      - name: active_subscriptions_prior_month
+        description: active_subscriptions du mois précédent (NULL si premier mois disponible).
+      - name: churn_rate_pct
+        description: >
+          churned_subscriptions / active_subscriptions_prior_month * 100. NULL si premier mois
+          disponible ou si aucun abonnement actif le mois précédent.
+  - name: publisher_developer_trends
+    description: >
+      Tendance de part de marché par éditeur et par développeur dans le temps. Grain :
+      (entity_type ['publisher'|'developer'], entity_name, month_start). Contrairement au genre,
+      un jeu a exactement un éditeur et un développeur -- pas de double comptage, la somme des
+      revenue_share_pct de tous les publishers (ou de tous les developers) sur un même mois fait
+      ~100%. revenue_share_pct_change_mom : positif = gagne en part de marché, négatif = en perd,
+      NULL au premier mois disponible pour cette entité.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de entity_type/entity_name/month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: entity_type
+        description: "'publisher' ou 'developer'."
+        data_tests:
+          - not_null
+      - name: entity_name
+        description: Nom de l'éditeur ou du développeur.
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: revenue_usd
+        description: Revenu du mois pour cette entité, en USD.
+        data_tests:
+          - not_null
+      - name: units_sold
+        description: Nombre de ventes du mois pour cette entité.
+        data_tests:
+          - not_null
+      - name: distinct_games_sold
+        description: Nombre de jeux distincts vendus ce mois-là pour cette entité.
+        data_tests:
+          - not_null
+      - name: total_revenue_usd
+        description: Vrai revenu total du marché ce mois-là, toutes entités confondues.
+        data_tests:
+          - not_null
+      - name: revenue_share_pct
+        description: Part du revenu total du marché captée par cette entité ce mois-là (%).
+        data_tests:
+          - not_null
+      - name: revenue_share_pct_prior_month
+        description: revenue_share_pct du mois précédent pour cette entité (NULL si premier mois disponible).
+      - name: revenue_share_pct_change_mom
+        description: Variation de revenue_share_pct vs le mois précédent (points de %).
+
+  - name: market_item_trends
+    description: >
+      Tendance du marché secondaire par type et par rareté d'objet dans le temps. Grain :
+      (entity_type ['item_type'|'item_rarity'], entity_name, month_start). item_type/item_rarity
+      sont mono-valués par objet -- pas de double comptage, la somme des value_share_pct de tous
+      les item_type (ou de toutes les item_rarity) sur un même mois fait ~100%.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de entity_type/entity_name/month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: entity_type
+        description: "'item_type' ou 'item_rarity'."
+        data_tests:
+          - not_null
+      - name: entity_name
+        description: Valeur du type ou de la rareté d'objet.
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: value_usd
+        description: Valeur totale des transactions du mois pour cette entité, en USD.
+        data_tests:
+          - not_null
+      - name: transaction_count
+        description: Nombre de transactions du mois pour cette entité.
+        data_tests:
+          - not_null
+      - name: avg_price_variance
+        description: >
+          Écart moyen entre prix final et prix affiché. Positif = les objets se vendent en
+          moyenne au-dessus du prix affiché (forte demande), négatif = en dessous.
+        data_tests:
+          - not_null
+      - name: total_value_usd
+        description: Vraie valeur totale du marché ce mois-là, toutes entités confondues.
+        data_tests:
+          - not_null
+      - name: value_share_pct
+        description: Part de la valeur totale du marché captée par cette entité ce mois-là (%).
+        data_tests:
+          - not_null
+      - name: value_share_pct_prior_month
+        description: value_share_pct du mois précédent pour cette entité (NULL si premier mois disponible).
+      - name: value_share_pct_change_mom
+        description: Variation de value_share_pct vs le mois précédent (points de %).
+
+  - name: dlc_attach_rate
+    description: >
+      Attach rate DLC par jeu dans le temps (jeux ayant au moins un DLC uniquement). Grain :
+      (game_id, month_start). attach_rate_pct = part CUMULÉE À DATE des propriétaires du jeu de
+      base qui possèdent aussi au moins un DLC.
+
+      ATTENTION : attach_rate_pct peut dépasser 100% -- constaté dans les données réelles que des
+      utilisateurs achètent un DLC sans jamais avoir acheté le jeu de base via une vente 'game'
+      trackée (jeu offert, promo, ou incohérence des données source). Pas une erreur de calcul,
+      un vrai signal de données à connaître.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de game_id/month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu concerné (jeux ayant au moins un DLC uniquement).
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu.
+        data_tests:
+          - not_null
+      - name: publisher_name
+        description: Éditeur du jeu.
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: new_owners_this_month
+        description: Nouveaux propriétaires du jeu de base ce mois-là (premier achat).
+        data_tests:
+          - not_null
+      - name: new_dlc_owners_this_month
+        description: Nouveaux propriétaires d'au moins un DLC de ce jeu ce mois-là (premier achat de DLC).
+        data_tests:
+          - not_null
+      - name: cumulative_owners
+        description: Nombre cumulé de propriétaires distincts du jeu de base à ce mois-là.
+        data_tests:
+          - not_null
+      - name: cumulative_dlc_owners
+        description: Nombre cumulé de propriétaires distincts d'au moins un DLC de ce jeu à ce mois-là.
+        data_tests:
+          - not_null
+      - name: attach_rate_pct
+        description: cumulative_dlc_owners / cumulative_owners * 100. Voir avertissement >100%.
+  - name: genre_popularity_trends
+    description: >
+      Tendance de popularité des genres de jeux dans le temps. Grain : (genre, month_start).
+      revenue_share_pct = part de marché du genre ce mois-là (contre le vrai total, sans double
+      comptage). revenue_share_pct_change_mom = variation de cette part vs le mois précédent
+      (positif = genre qui gagne en popularité, négatif = qui en perd, NULL au premier mois
+      disponible pour ce genre, faute de comparaison possible).
+
+      ATTENTION genre multi-valué : un jeu multi-genre compte dans chacun de ses genres
+      (revenue_usd/units_sold dupliqués entre ses genres). La somme des revenue_share_pct de tous
+      les genres sur un même mois peut dépasser 100% à cause de ça -- normal, pas un bug.
+
+      ATTENTION couverture mensuelle : pas de grille zero-fill (contrairement à
+      game_sales_monthly_revenue) -- chaque genre a des ventes quasi tous les mois sur les données
+      actuelles (49-50/50). Si un genre venait à avoir de vrais trous, la variation mois-vs-mois
+      sauterait silencieusement au mois disponible précédent plutôt que de comparer à un mois
+      manquant à zéro.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de genre/month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: genre
+        description: Genre concerné.
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: revenue_usd
+        description: Revenu du mois pour ce genre, en USD (dupliqué entre genres d'un même jeu).
+        data_tests:
+          - not_null
+      - name: units_sold
+        description: Nombre de ventes du mois pour ce genre (dupliqué entre genres d'un même jeu).
+        data_tests:
+          - not_null
+      - name: distinct_games_sold
+        description: Nombre de jeux distincts de ce genre vendus ce mois-là.
+        data_tests:
+          - not_null
+      - name: total_revenue_usd_all_genres
+        description: Vrai revenu total du marché ce mois-là, tous genres confondus, sans double comptage.
+        data_tests:
+          - not_null
+      - name: revenue_share_pct
+        description: Part du revenu total du marché captée par ce genre ce mois-là (%).
+        data_tests:
+          - not_null
+      - name: revenue_share_pct_prior_month
+        description: revenue_share_pct du mois précédent pour ce genre (NULL si premier mois disponible).
+      - name: revenue_share_pct_change_mom
+        description: >
+          Variation de revenue_share_pct vs le mois précédent (points de %). Positif = genre qui
+          gagne en popularité, négatif = qui en perd. NULL si premier mois disponible.
+  - name: game_reviews_trends
+    description: >
+      Avis général par jeu, agrégé à la semaine (grain le plus fin), avec month_start et year
+      fournis pour regrouper directement au mois ou à l'année sans recalcul côté BI.
+      Grain : (game_id, week_start). week_start = début de semaine au dimanche (comportement par
+      défaut de toStartOfWeek en ClickHouse).
+
+      ATTENTION agrégation : review_count/recommended_count/total_votes/helpful_votes sont des
+      mesures additives (resommables sans souci par month_start ou year). recommendation_rate et
+      helpfulness_rate sont calculés à CE grain (semaine) -- en regroupant par mois/année, il faut
+      recalculer le taux à partir des sommes (sum(recommended_count) / sum(review_count)), jamais
+      moyenner les taux hebdomadaires entre eux (une semaine à 2 avis ne doit pas peser autant
+      qu'une semaine à 50 avis).
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de game_id/week_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu concerné.
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu.
+        data_tests:
+          - not_null
+      - name: publisher_name
+        description: Éditeur du jeu.
+        data_tests:
+          - not_null
+      - name: developer_name
+        description: Développeur du jeu.
+        data_tests:
+          - not_null
+      - name: week_start
+        description: Début de la semaine (dimanche).
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois contenant cette semaine.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année de la semaine.
+        data_tests:
+          - not_null
+      - name: review_count
+        description: Nombre d'avis postés cette semaine pour ce jeu. Mesure additive.
+        data_tests:
+          - not_null
+      - name: recommended_count
+        description: Nombre de ces avis qui recommandent le jeu. Mesure additive.
+        data_tests:
+          - not_null
+      - name: recommendation_rate
+        description: Part d'avis qui recommandent le jeu, à ce grain (semaine) uniquement.
+        data_tests:
+          - not_null
+      - name: total_votes
+        description: Nombre total de votes reçus sur les avis de la semaine. Mesure additive.
+        data_tests:
+          - not_null
+      - name: helpful_votes
+        description: Nombre de votes jugeant ces avis utiles. Mesure additive.
+        data_tests:
+          - not_null
+      - name: helpfulness_rate
+        description: Part de votes utiles, à ce grain (semaine) uniquement (NULL si aucun vote).
+  - name: game_sales_analysis
+    description: >
+      Ventes (jeux + DLC) enrichies pour l'analyse self-service : calendrier, utilisateur, jeu
+      parent (résolu même pour un DLC), éditeur/développeur/genres. Une ligne = une vente
+      (même grain que FTC_SALES).
+
+      {{ doc('dg_self_service_overview') }}
+    columns:
+      - name: sale_id
+        description: Identifiant unique de la vente.
+        data_tests:
+          - not_null
+          - unique
+      - name: sale_at
+        description: Date/heure de la vente.
+        data_tests:
+          - not_null
+      - name: sale_date
+        description: Date de la vente (jour).
+        data_tests:
+          - not_null
+      - name: sale_year
+        description: Année de la vente.
+        data_tests:
+          - not_null
+      - name: sale_quarter
+        description: Trimestre de la vente.
+        data_tests:
+          - not_null
+      - name: sale_month
+        description: Mois de la vente (1-12).
+        data_tests:
+          - not_null
+      - name: sale_month_name
+        description: Nom du mois de la vente.
+        data_tests:
+          - not_null
+      - name: sale_is_weekend
+        description: Indique si la vente a eu lieu un week-end.
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Utilisateur acheteur.
+        data_tests:
+          - not_null
+      - name: username
+        description: Nom de l'utilisateur acheteur.
+        data_tests:
+          - not_null
+      - name: product_type
+        description: Type de produit vendu (game ou dlc).
+        data_tests:
+          - not_null
+      - name: product_title
+        description: Titre du produit vendu (jeu ou DLC).
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu parent (résolu via DIM_DLCS si product_type = dlc).
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu parent.
+        data_tests:
+          - not_null
+      - name: publisher_name
+        description: Éditeur du jeu parent.
+        data_tests:
+          - not_null
+      - name: developer_name
+        description: Développeur du jeu parent.
+        data_tests:
+          - not_null
+      - name: genre_names
+        description: Genres du jeu parent.
+      - name: payment_provider
+        description: Fournisseur du moyen de paiement utilisé.
+        data_tests:
+          - not_null
+      - name: sale_amount
+        description: Montant de la vente.
+        data_tests:
+          - not_null
+
+  - name: game_sales_monthly_revenue
+    description: >
+      Revenu mensuel par jeu, pensé pour l'analyse de tendance long terme : CA en USD, cumul à
+      date en USD et en CAD, 12 mois glissants en USD, filtrable par product_type et par genre.
+      Grain : (game_id, product_type, genre, sale_month).
+
+      CAD uniquement sur le cumul à date (cumulative_revenue_cad) -- le revenu mensuel brut et le
+      12 mois glissant restent en USD.
+
+      ATTENTION conversion CAD : taux de change fixe (var dg_usd_to_cad_rate), pas de table de
+      taux historique -- suffisant pour une tendance, pas pour un reporting financier officiel.
+
+      ATTENTION genre multi-valué : un jeu multi-genre apparaît une fois par genre. Filtrer sur
+      UN SEUL genre à la fois donne un total correct ; sommer sur plusieurs genres ou ne pas
+      filtrer du tout surcompte les jeux multi-genres.
+
+      ATTENTION grille mensuelle : cumulative_revenue_*/rolling_12m_revenue_* sont calculés sur une
+      grille mensuelle complète (mois sans vente = 0), pas sur les seuls mois avec ventes -- sinon
+      "12 mois glissants" ne représenterait pas 12 mois calendaires pour un jeu aux ventes
+      espacées.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de game_id/product_type/genre/sale_month).
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu concerné.
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu.
+        data_tests:
+          - not_null
+      - name: product_type
+        description: Type de produit (game ou dlc).
+        data_tests:
+          - not_null
+      - name: genre
+        description: Un des genres du jeu (une ligne par genre -- voir avertissement double comptage).
+        data_tests:
+          - not_null
+      - name: publisher_name
+        description: Éditeur du jeu.
+        data_tests:
+          - not_null
+      - name: developer_name
+        description: Développeur du jeu.
+        data_tests:
+          - not_null
+      - name: sale_month
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: sale_year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: sale_month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: revenue_usd
+        description: Revenu du mois pour ce (jeu, product_type), en USD. 0 si aucune vente ce mois.
+        data_tests:
+          - not_null
+      - name: cumulative_revenue_usd
+        description: Revenu cumulé depuis le premier mois de vente du (jeu, product_type), en USD.
+        data_tests:
+          - not_null
+      - name: cumulative_revenue_cad
+        description: cumulative_revenue_usd converti en CAD (taux fixe, voir avertissement).
+        data_tests:
+          - not_null
+      - name: rolling_12m_revenue_usd
+        description: Revenu des 12 derniers mois calendaires glissants, en USD.
+        data_tests:
+          - not_null

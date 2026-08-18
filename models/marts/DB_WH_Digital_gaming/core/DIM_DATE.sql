@@ -31,4 +31,17 @@ final as (
     from date_spine
 )
 
-select * from final
+select
+    date_day,
+    date_id,
+    year,
+    quarter,
+    month,
+    month_name,
+    day_of_month,
+    day_of_week,
+    day_name,
+    iso_week,
+    is_weekend,
+    year_month
+from final

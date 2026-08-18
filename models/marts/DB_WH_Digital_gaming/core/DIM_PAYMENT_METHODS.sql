@@ -13,7 +13,12 @@
 -- être exposée dans un mart business-facing même si présente en staging.
 
 with payment_methods as (
-    select * from {{ ref('stg_dg_payment_methods') }}
+    select
+        payment_method_id,
+        user_id,
+        provider,
+        expiry_date
+    from {{ ref('stg_dg_payment_methods') }}
 ),
 
 final as (
@@ -25,4 +30,9 @@ final as (
     from payment_methods
 )
 
-select * from final
+select
+    payment_method_id,
+    user_id,
+    provider,
+    expiry_date
+from final

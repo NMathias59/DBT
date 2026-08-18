@@ -17,7 +17,18 @@
 -- liée à la sortie d'un DLC (pas de table "mises à jour" dans le domaine, DLC = seul proxy dispo).
 
 with reviews as (
-    select * from {{ ref('int_dg_reviews') }}
+    select
+        review_id,
+        user_id,
+        game_id,
+        is_recommended,
+        total_votes,
+        helpful_votes,
+        helpful_ratio,
+        created_at,
+        nearest_prior_dlc_id,
+        days_since_last_dlc_release
+    from {{ ref('int_dg_reviews') }}
 ),
 
 final as (
@@ -35,4 +46,15 @@ final as (
     from reviews
 )
 
-select * from final
+select
+    review_id,
+    user_id,
+    game_id,
+    is_recommended,
+    total_votes,
+    helpful_votes,
+    helpful_ratio,
+    created_at,
+    nearest_prior_dlc_id,
+    days_since_last_dlc_release
+from final

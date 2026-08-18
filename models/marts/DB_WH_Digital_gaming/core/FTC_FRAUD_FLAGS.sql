@@ -14,7 +14,16 @@
 -- (ex: account_takeover_suspected, sans lien avec une transaction).
 
 with fraud_flags as (
-    select * from {{ ref('int_dg_fraud_flags') }}
+    select
+        fraud_flag_id,
+        user_id,
+        flagged_at,
+        flag_type,
+        status,
+        related_market_transaction_id,
+        related_transaction_amount,
+        related_item_name
+    from {{ ref('int_dg_fraud_flags') }}
 ),
 
 final as (
@@ -30,4 +39,13 @@ final as (
     from fraud_flags
 )
 
-select * from final
+select
+    fraud_flag_id,
+    user_id,
+    flagged_at,
+    flag_type,
+    status,
+    related_market_transaction_id,
+    related_transaction_amount,
+    related_item_name
+from final

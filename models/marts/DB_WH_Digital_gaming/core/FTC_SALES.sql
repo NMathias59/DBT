@@ -19,7 +19,19 @@
 -- les lignes déjà chargées du mois qui ne seraient pas resélectionnées par le filtre.
 
 with purchases as (
-    select * from {{ ref('int_dg_purchases') }}
+    select
+        purchase_item_id,
+        purchase_id,
+        user_id,
+        payment_method_id,
+        payment_provider,
+        product_type,
+        game_id,
+        dlc_id,
+        product_title,
+        item_price,
+        purchased_at
+    from {{ ref('int_dg_purchases') }}
     {% if is_incremental() %}
     where purchased_at >= dateTrunc('month', now()) - interval {{ var('dg_incremental_lookback_months') }} month
     {% endif %}
@@ -42,4 +54,17 @@ final as (
     from purchases
 )
 
-select * from final
+select
+    sale_id,
+    purchase_id,
+    user_id,
+    payment_method_id,
+    payment_provider,
+    product_type,
+    game_id,
+    dlc_id,
+    product_title,
+    sale_amount,
+    sale_at,
+    sale_date
+from final

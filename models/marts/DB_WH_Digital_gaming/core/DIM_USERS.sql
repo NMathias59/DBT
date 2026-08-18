@@ -10,7 +10,16 @@
 -- FTC_REVIEWS / FTC_SUBSCRIPTIONS par utilisateur.
 
 with user_activity as (
-    select * from {{ ref('int_dg_user_activity') }}
+    select
+        user_id,
+        username,
+        total_logins,
+        suspicious_logins,
+        last_login_at,
+        games_owned,
+        total_playtime_minutes,
+        achievements_unlocked
+    from {{ ref('int_dg_user_activity') }}
 ),
 
 final as (
@@ -26,4 +35,13 @@ final as (
     from user_activity
 )
 
-select * from final
+select
+    user_id,
+    username,
+    total_logins,
+    suspicious_logins,
+    last_login_at,
+    games_owned,
+    total_playtime_minutes,
+    achievements_unlocked
+from final

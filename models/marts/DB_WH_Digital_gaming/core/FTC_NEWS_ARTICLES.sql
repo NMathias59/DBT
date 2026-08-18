@@ -14,7 +14,12 @@
 -- et contenu immuable une fois publié.
 
 with news_articles as (
-    select * from {{ ref('stg_dg_news_articles') }}
+    select
+        article_id,
+        game_id,
+        title,
+        published_at
+    from {{ ref('stg_dg_news_articles') }}
 ),
 
 final as (
@@ -26,4 +31,9 @@ final as (
     from news_articles
 )
 
-select * from final
+select
+    article_id,
+    game_id,
+    title,
+    published_at
+from final

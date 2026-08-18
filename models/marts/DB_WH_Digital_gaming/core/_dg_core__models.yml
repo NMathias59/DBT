@@ -146,6 +146,91 @@ models:
         data_tests:
           - not_null
 
+  - name: DIM_ITEMS
+    description: >
+      Dimension objet in-game (catalogue complet, vendu ou non sur le marché secondaire). Grain :
+      une ligne par objet, avec le jeu parent résolu en clair.
+    columns:
+      - name: item_id
+        description: Identifiant unique de l'objet.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu auquel l'objet appartient.
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu parent.
+        data_tests:
+          - not_null
+      - name: item_name
+        description: Nom de l'objet.
+        data_tests:
+          - not_null
+      - name: item_type
+        description: Type de l'objet.
+        data_tests:
+          - not_null
+      - name: item_rarity
+        description: Rareté de l'objet.
+        data_tests:
+          - not_null
+
+  - name: DIM_ACHIEVEMENTS
+    description: >
+      Dimension succès (catalogue statique). Grain : une ligne par succès. Complète
+      FTC_USER_ACHIEVEMENTS.
+    columns:
+      - name: achievement_id
+        description: Identifiant unique du succès.
+        data_tests:
+          - not_null
+          - unique
+      - name: game_id
+        description: Jeu auquel le succès est rattaché.
+        data_tests:
+          - not_null
+      - name: game_title
+        description: Titre du jeu parent.
+        data_tests:
+          - not_null
+      - name: achievement_name
+        description: Nom du succès.
+        data_tests:
+          - not_null
+      - name: points
+        description: Points attribués pour ce succès.
+        data_tests:
+          - not_null
+
+  - name: DIM_SUBSCRIPTION_PLANS
+    description: >
+      Dimension formule d'abonnement (catalogue complet, y compris formules inactives). Grain :
+      une ligne par formule. Complète FTC_SUBSCRIPTIONS.
+    columns:
+      - name: plan_id
+        description: Identifiant unique de la formule.
+        data_tests:
+          - not_null
+          - unique
+      - name: plan_name
+        description: Nom de la formule.
+        data_tests:
+          - not_null
+      - name: price
+        description: Prix de la formule.
+        data_tests:
+          - not_null
+      - name: billing_period_days
+        description: Durée du cycle de facturation, en jours.
+        data_tests:
+          - not_null
+      - name: is_active
+        description: Indique si la formule est actuellement proposée à la vente.
+        data_tests:
+          - not_null
+
   - name: DIM_PAYMENT_METHODS
     description: >
       Dimension moyen de paiement. Grain : une ligne par moyen de paiement (un utilisateur peut en
@@ -282,7 +367,9 @@ models:
       Table de faits des annonces mises en vente sur le marché secondaire. Grain : une ligne =
       une annonce. Distinct de FTC_MARKET_TRANSACTIONS (grain = transaction) : une annonce peut ne
       jamais se vendre, ou être liée à plusieurs transactions dans ce jeu de données. Full rebuild
-      (pas d'incrémental), is_sold est mutable après listed_at.
+      (pas d'incrémental), le statut est mutable après listed_at.
+      ATTENTION qualité de données : le flag is_sold de la source n'est fiable que dans 49% des cas
+      (constaté sur les 810 annonces réelles) -- utiliser is_actually_sold pour toute analyse.
     columns:
       - name: listing_id
         description: Identifiant unique de l'annonce.
@@ -317,18 +404,141 @@ models:
         description: Date/heure de mise en vente.
         data_tests:
           - not_null
-      - name: is_sold
-        description: Statut "vendu" tel que déclaré par la source.
+      - name: is_actually_sold
+        description: >
+          Statut "vendu" fiable, dérivé de l'existence réelle d'une transaction
+          (transaction_count > 0). À utiliser pour toute analyse, PAS is_sold_source_flag.
         data_tests:
           - not_null
       - name: transaction_count
         description: Nombre réel de transactions liées à cette annonce (0 si aucune).
         data_tests:
           - not_null
+      - name: is_sold_source_flag
+        description: >
+          Statut "vendu" tel que déclaré par la source (flag brut, non fiable -- cf.
+          is_sold_flag_consistent). Conservé pour traçabilité, pas pour l'analyse.
+        data_tests:
+          - not_null
       - name: is_sold_flag_consistent
         description: >
-          Indique si is_sold est cohérent avec l'existence réelle d'une transaction
-          (is_sold = transaction_count > 0). false = incohérence constatée dans les données source.
+          Indique si is_sold_source_flag est cohérent avec is_actually_sold. false = incohérence
+          constatée dans les données source (51% des annonces).
+        data_tests:
+          - not_null
+
+  - name: FTC_LIBRARY
+    description: >
+      Table de faits des jeux en bibliothèque des utilisateurs. Grain : une ligne par jeu possédé.
+      Distinct de FTC_SALES (pas forcément passé par un achat). Full rebuild (pas d'incrémental)
+      car playtime_minutes augmente en continu après purchase_date.
+    columns:
+      - name: library_id
+        description: Identifiant unique de l'entrée de bibliothèque.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur propriétaire du jeu.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu possédé.
+        data_tests:
+          - not_null
+      - name: purchase_date
+        description: Date/heure d'acquisition du jeu.
+        data_tests:
+          - not_null
+      - name: playtime_minutes
+        description: Temps de jeu cumulé, en minutes.
+        data_tests:
+          - not_null
+
+  - name: FTC_WISHLISTS
+    description: >
+      Table de faits des ajouts en liste de souhaits. Grain : une ligne par ajout (un couple
+      user/game peut apparaître plusieurs fois -- pas de déduplication). Signal de demande, utile
+      pour un funnel wishlist -> achat en rapprochant de FTC_SALES.
+    columns:
+      - name: wishlist_id
+        description: Clé de substitution (hash de user_id/game_id/added_at, pas de clé source).
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur propriétaire de la liste de souhaits.
+        data_tests:
+          - not_null
+      - name: game_id
+        description: Jeu ajouté à la liste de souhaits.
+        data_tests:
+          - not_null
+      - name: added_at
+        description: Date/heure d'ajout à la liste de souhaits.
+        data_tests:
+          - not_null
+
+  - name: FTC_USER_ACHIEVEMENTS
+    description: >
+      Table de faits des déblocages de succès. Grain : une ligne par déblocage (un couple
+      user/achievement peut apparaître plusieurs fois -- pas de déduplication).
+    columns:
+      - name: user_achievement_id
+        description: Clé de substitution (hash de user_id/achievement_id/unlocked_at).
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant débloqué le succès.
+        data_tests:
+          - not_null
+      - name: achievement_id
+        description: Succès débloqué.
+        data_tests:
+          - not_null
+      - name: unlocked_at
+        description: Date/heure de déblocage du succès.
+        data_tests:
+          - not_null
+
+  - name: FTC_LOGIN_EVENTS
+    description: >
+      Table de faits des événements de connexion. Grain : une ligne par événement. Incrémental
+      insert_overwrite (comme FTC_SALES) : événement immuable une fois créé, volume qui grossit
+      en continu.
+    columns:
+      - name: login_event_id
+        description: Identifiant unique de l'événement de connexion.
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur concerné.
+        data_tests:
+          - not_null
+      - name: event_time
+        description: Date/heure de l'événement.
+        data_tests:
+          - not_null
+      - name: event_date
+        description: Date de l'événement (jour), utilisée comme clé de partitionnement mensuel.
+        data_tests:
+          - not_null
+      - name: ip_address
+        description: Adresse IP de connexion.
+        data_tests:
+          - not_null
+      - name: device
+        description: Appareil utilisé pour la connexion.
+        data_tests:
+          - not_null
+      - name: event_type
+        description: Type d'événement (connexion, déconnexion...).
+        data_tests:
+          - not_null
+      - name: is_suspicious
+        description: Indique si l'événement est jugé suspect.
         data_tests:
           - not_null
 

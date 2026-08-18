@@ -13,7 +13,18 @@
 -- moment de la souscription. Volume faible (~300 abonnements), rebuild complet largement suffisant.
 
 with subscriptions as (
-    select * from {{ ref('int_dg_subscriptions') }}
+    select
+        subscription_id,
+        user_id,
+        plan_id,
+        plan_name,
+        plan_price,
+        billing_period_days,
+        start_date,
+        end_date,
+        status,
+        auto_renew
+    from {{ ref('int_dg_subscriptions') }}
 ),
 
 final as (
@@ -31,4 +42,15 @@ final as (
     from subscriptions
 )
 
-select * from final
+select
+    subscription_id,
+    user_id,
+    plan_id,
+    plan_name,
+    plan_price,
+    billing_period_days,
+    start_date,
+    end_date,
+    status,
+    auto_renew
+from final

@@ -16,7 +16,21 @@
 -- REPLACE PARTITION, jamais un filtre ">dernier timestamp" qui tronquerait la partition en place.
 
 with market_transactions as (
-    select * from {{ ref('int_dg_market_transactions') }}
+    select
+        market_transaction_id,
+        listing_id,
+        seller_id,
+        buyer_id,
+        item_id,
+        item_name,
+        item_type,
+        item_rarity,
+        listed_price,
+        final_price,
+        price_variance,
+        listed_at,
+        sold_at
+    from {{ ref('int_dg_market_transactions') }}
     {% if is_incremental() %}
     where sold_at >= dateTrunc('month', now()) - interval {{ var('dg_incremental_lookback_months') }} month
     {% endif %}
@@ -41,4 +55,19 @@ final as (
     from market_transactions
 )
 
-select * from final
+select
+    market_transaction_id,
+    listing_id,
+    seller_id,
+    buyer_id,
+    item_id,
+    item_name,
+    item_type,
+    item_rarity,
+    listed_price,
+    final_price,
+    price_variance,
+    listed_at,
+    sold_at,
+    sale_date
+from final

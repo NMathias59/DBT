@@ -10,11 +10,20 @@
 -- possibilité d'analyser par jeu parent / prix catalogue / date de sortie du DLC).
 
 with dlcs as (
-    select * from {{ ref('stg_dg_dlcs') }}
+    select
+        dlc_id,
+        game_id,
+        title,
+        price,
+        release_date
+    from {{ ref('stg_dg_dlcs') }}
 ),
 
 games as (
-    select * from {{ ref('stg_dg_games') }}
+    select
+        game_id,
+        title
+    from {{ ref('stg_dg_games') }}
 ),
 
 final as (
@@ -29,4 +38,11 @@ final as (
     left join games on dlcs.game_id = games.game_id
 )
 
-select * from final
+select
+    dlc_id,
+    game_id,
+    game_title,
+    dlc_title,
+    price,
+    release_date
+from final
