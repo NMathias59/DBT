@@ -33,3 +33,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 dbt_internal_packages/
+
+# --- Metabase ---
+.metabase/
