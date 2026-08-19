@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: DB_WH_IMDB
+    schema: DB_WH_IMDB_REFERENCE
+    description: "{{ doc('imdb_overview') }}"
+    tables:
+      - name: movies
+      - name: people
+      - name: credits
+      - name: genres
+      - name: languages
+      - name: running_times
+      - name: certificates
+      - name: color_info
+      - name: keywords
+      - name: locations
+      - name: release_dates

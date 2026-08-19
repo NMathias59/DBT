@@ -63,14 +63,28 @@ $env:DBT_PROFILES_DIR = "."
 - [x] Configuration initiale du projet dbt + connexion ClickHouse
 - [x] Sources et modèles staging — Digital Gaming (37 modèles staging + data tests not_null/unique)
 - [x] Sources et modèles staging — Digital Music (11 modèles staging + data tests not_null/unique)
-- [ ] Sources et modèles staging — autres domaines (Digital Video, Physical Gaming/Music/Video,
-      Group Procurement, IMDB, Market Intelligence, Seo Marketing, Support Reference)
+- [x] Sources et modèles staging — Digital Video (4 modèles staging, jeu de données type
+      MovieLens : movies/links/ratings/tags)
+- [x] Sources et modèles staging — IMDB (11 modèles staging, dont 5 sur des tables sources
+      vides : certificates/color_info/keywords/locations/release_dates — créées pour la
+      complétude, non consommées par intermediate/marts tant qu'elles restent vides)
+- [ ] Sources et modèles staging — autres domaines (Physical Gaming/Music/Video, Group
+      Procurement, Market Intelligence, Seo Marketing, Support Reference)
 - [x] Modèles intermediate — Digital Music (int_dm_tracks, int_dm_invoice_lines,
       int_dm_customer_activity, int_dm_playlists, int_dm_employees)
+- [x] Modèles intermediate — Digital Video (int_dv_movies, int_dv_ratings,
+      int_dv_user_activity — dimension utilisateur entièrement dérivée, pas de table source)
+- [x] Modèles intermediate — IMDB (int_imdb_movies, int_imdb_credits,
+      int_imdb_people_filmography)
 - [ ] Modèles intermediate — autres domaines
 - [x] Modèles marts — Digital Music (core : DIM_ARTISTS/DIM_ALBUMS/DIM_TRACKS/DIM_CUSTOMERS/
       DIM_EMPLOYEES/DIM_PLAYLISTS/FTC_TRACK_SALES/FTC_PLAYLIST_TRACKS ; self_service :
       track_sales_analysis, monthly_revenue_trends, genre_revenue_trends,
       employee_sales_performance)
+- [x] Modèles marts — Digital Video (core : DIM_MOVIES/DIM_VIEWERS/FTC_RATINGS/FTC_TAGS ;
+      self_service : movie_ratings_analysis, genre_ratings_trends, top_rated_movies)
+- [x] Modèles marts — IMDB (core : DIM_FILMS/DIM_PEOPLE/FTC_CREDITS — pas de fait incrémental,
+      aucune date événementielle dans ce référentiel ; self_service : movie_credits_analysis,
+      genre_movie_trends, top_directors)
 - [ ] Modèles marts — autres domaines (Digital Gaming : fichiers présents mais jamais exécutés,
       cf. absence de `+schema` sous `marts.DB_WH_Digital_gaming` dans dbt_project.yml)

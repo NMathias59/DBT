@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: DIM_FILMS
+    description: >
+      Dimension film (catalogue). Nommée DIM_FILMS (pas DIM_MOVIES, déjà pris par Digital Video)
+      pour éviter toute collision de nom de modèle dbt. Grain : une ligne par film. Type 1 (pas
+      d'historisation), full rebuild à chaque run. Genres/langues éclatés en tableaux, cast/crew
+      agrégés (réalisateurs, scénaristes, acteurs).
+    columns:
+      - name: movie_id
+        description: Identifiant unique du film.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre du film.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année de sortie, le cas échéant.
+      - name: rating
+        description: Note moyenne du film, le cas échéant.
+      - name: nvotes
+        description: Nombre de votes ayant contribué à la note, le cas échéant.
+      - name: running_time_minutes
+        description: Durée du film, en minutes, le cas échéant.
+      - name: genres_list
+        description: Genres du film (tableau vide si aucun genre associé).
+        data_tests:
+          - not_null
+      - name: genre_count
+        description: Nombre de genres du film (0 si aucun).
+        data_tests:
+          - not_null
+      - name: languages_list
+        description: Langues distinctes associées au film (tableau vide si aucune).
+        data_tests:
+          - not_null
+      - name: director_names
+        description: Noms des réalisateurs du film (tableau vide si aucun crédit "director").
+        data_tests:
+          - not_null
+      - name: writer_names
+        description: Noms des scénaristes du film (tableau vide si aucun crédit "writer").
+        data_tests:
+          - not_null
+      - name: cast_names
+        description: Noms des acteurs du film (tableau vide si aucun crédit "actor").
+        data_tests:
+          - not_null
+      - name: director_count
+        description: Nombre de crédits "director" du film (0 si aucun).
+        data_tests:
+          - not_null
+      - name: writer_count
+        description: Nombre de crédits "writer" du film (0 si aucun).
+        data_tests:
+          - not_null
+      - name: actor_count
+        description: Nombre de crédits "actor" du film (0 si aucun).
+        data_tests:
+          - not_null
+
+  - name: DIM_PEOPLE
+    description: >
+      Dimension personne (cast/crew), avec sa filmographie agrégée tous rôles confondus. Grain :
+      une ligne par personne. Full rebuild à chaque run, volume faible (catalogue statique).
+    columns:
+      - name: person_id
+        description: Identifiant unique de la personne.
+        data_tests:
+          - not_null
+          - unique
+      - name: person_name
+        description: Nom de la personne.
+        data_tests:
+          - not_null
+      - name: total_credits
+        description: Nombre total de crédits de la personne, tous rôles confondus (0 si aucun).
+        data_tests:
+          - not_null
+      - name: actor_credits
+        description: Nombre de crédits "actor" de la personne (0 si aucun).
+        data_tests:
+          - not_null
+      - name: director_credits
+        description: Nombre de crédits "director" de la personne (0 si aucun).
+        data_tests:
+          - not_null
+      - name: writer_credits
+        description: Nombre de crédits "writer" de la personne (0 si aucun).
+        data_tests:
+          - not_null
+      - name: producer_credits
+        description: Nombre de crédits "producer" de la personne (0 si aucun).
+        data_tests:
+          - not_null
+      - name: first_credit_year
+        description: Année du premier film crédité (parmi les films avec année connue), le cas échéant.
+      - name: last_credit_year
+        description: Année du dernier film crédité (parmi les films avec année connue), le cas échéant.
+      - name: avg_movie_rating
+        description: >
+          Note moyenne des films sur lesquels la personne a été créditée (chaque film compté une
+          seule fois, même en cas de crédits multiples sur ce film), le cas échéant.
+
+  - name: FTC_CREDITS
+    description: >
+      Table de faits des crédits (personne x film x rôle). Grain : une ligne = un crédit. Table
+      full rebuild (PAS d'incrémental, contrairement aux autres domaines) : aucune dimension
+      temporelle événementielle disponible dans ce référentiel -- voir imdb_overview.
+    columns:
+      - name: credit_id
+        description: >
+          Clé de substitution (hash de person_id/movie_id/credit_type/character, pas de clé
+          source).
+        data_tests:
+          - not_null
+          - unique
+      - name: person_id
+        description: Personne créditée.
+        data_tests:
+          - not_null
+      - name: person_name
+        description: Nom de la personne créditée.
+      - name: movie_id
+        description: Film concerné.
+        data_tests:
+          - not_null
+      - name: movie_title
+        description: Titre du film.
+      - name: movie_year
+        description: Année de sortie du film, le cas échéant.
+      - name: credit_type
+        description: Type de crédit (actor, director, writer, producer, composer, ...).
+        data_tests:
+          - not_null
+      - name: character
+        description: Personnage interprété, pour un crédit de type "actor".
+      - name: note
+        description: Note libre sur le crédit, le cas échéant.

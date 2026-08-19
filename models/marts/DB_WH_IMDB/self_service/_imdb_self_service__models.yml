@@ -1,0 +1,105 @@
+version: 2
+
+models:
+  - name: movie_credits_analysis
+    description: >
+      Crédits enrichis pour l'analyse self-service : note/durée/genres du film. Une ligne = un
+      crédit (même grain que FTC_CREDITS).
+
+      {{ doc('imdb_self_service_overview') }}
+    columns:
+      - name: credit_id
+        description: Identifiant unique du crédit.
+        data_tests:
+          - not_null
+          - unique
+      - name: person_id
+        description: Personne créditée.
+        data_tests:
+          - not_null
+      - name: person_name
+        description: Nom de la personne créditée.
+      - name: movie_id
+        description: Film concerné.
+        data_tests:
+          - not_null
+      - name: movie_title
+        description: Titre du film.
+      - name: movie_year
+        description: Année de sortie du film, le cas échéant.
+      - name: movie_rating
+        description: Note moyenne du film, le cas échéant.
+      - name: movie_nvotes
+        description: Nombre de votes du film, le cas échéant.
+      - name: movie_running_time_minutes
+        description: Durée du film, en minutes, le cas échéant.
+      - name: movie_genres
+        description: Genres du film.
+      - name: credit_type
+        description: Type de crédit (actor, director, writer, producer, composer, ...).
+        data_tests:
+          - not_null
+      - name: character
+        description: Personnage interprété, pour un crédit de type "actor".
+
+  - name: genre_movie_trends
+    description: >
+      Volume de films et note moyenne par genre dans le temps. Grain : (genre, year) -- annuel,
+      pas mensuel (pas de date événementielle fine dans ce référentiel).
+
+      ATTENTION genre multi-valué : un film multi-genre compte dans chacun de ses genres --
+      movie_share_pct (volume) peut donc dépasser 100% en sommant tous les genres d'une même
+      année, normal, pas un bug.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de genre/year).
+        data_tests:
+          - not_null
+          - unique
+      - name: genre
+        description: Genre concerné ('Unknown' si le film n'a aucun genre associé).
+        data_tests:
+          - not_null
+      - name: year
+        description: Année concernée.
+        data_tests:
+          - not_null
+      - name: movie_count
+        description: Nombre de films de cette année pour ce genre (dupliqué entre genres d'un même film).
+        data_tests:
+          - not_null
+      - name: avg_rating
+        description: Note moyenne de cette année pour ce genre.
+      - name: total_movie_count
+        description: Vrai nombre total de films de cette année, tous genres confondus, sans double comptage.
+        data_tests:
+          - not_null
+      - name: movie_share_pct
+        description: Part du volume de films de l'année captée par ce genre (%). Voir avertissement >100%.
+        data_tests:
+          - not_null
+
+  - name: top_directors
+    description: >
+      Classement des réalisateurs par note pondérée façon IMDb (Bayesian average, seuil m=3
+      films), pour ne pas laisser un réalisateur à 1 film dominer un réalisateur à 20 films.
+      Grain : person_id (réalisateurs d'au moins 2 films uniquement, photo d'ensemble, pas de
+      tendance annuelle).
+    columns:
+      - name: person_id
+        description: Réalisateur concerné.
+        data_tests:
+          - not_null
+          - unique
+      - name: person_name
+        description: Nom du réalisateur.
+      - name: movies_directed
+        description: Nombre de films réalisés (au moins 2).
+        data_tests:
+          - not_null
+      - name: avg_rating
+        description: Note moyenne brute des films réalisés.
+      - name: weighted_rating
+        description: >
+          Note pondérée façon IMDb (Bayesian average, seuil m=3 films). À utiliser pour tout
+          classement, PAS avg_rating seul.

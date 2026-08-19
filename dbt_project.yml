@@ -47,6 +47,10 @@ models:
         +schema: DB_WH_DIGITAL_MUSIC
       DB_WH_Digital_video:
         +schema: DB_WH_DIGITAL_VIDEO
+      DB_WH_IMDB:
+        # Schéma ClickHouse réel = DB_WH_IMDB_REFERENCE (différent du nom de dossier DB_WH_IMDB,
+        # déjà en place dans le projet avant ce domaine).
+        +schema: DB_WH_IMDB_REFERENCE
     intermediate:
       +materialized: view
       DB_WH_Digital_gaming:
@@ -55,6 +59,8 @@ models:
         +schema: DB_WH_DIGITAL_MUSIC
       DB_WH_Digital_video:
         +schema: DB_WH_DIGITAL_VIDEO
+      DB_WH_IMDB:
+        +schema: DB_WH_IMDB_REFERENCE
     marts:
       +materialized: table
       DB_WH_Digital_gaming:
@@ -77,3 +83,9 @@ models:
         self_service:
           +materialized: view
           +schema: DB_WH_DIGITAL_VIDEO_SELF_SERVICE
+      DB_WH_IMDB:
+        core:
+          +schema: DB_WH_IMDB_REFERENCE
+        self_service:
+          +materialized: view
+          +schema: DB_WH_IMDB_REFERENCE_SELF_SERVICE
