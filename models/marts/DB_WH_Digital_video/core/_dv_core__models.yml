@@ -1,0 +1,127 @@
+version: 2
+
+models:
+  - name: DIM_MOVIES
+    description: >
+      Dimension film (catalogue). Grain : une ligne par film. Type 1 (pas d'historisation), full
+      rebuild à chaque run vu le faible volume. Genres éclatés en tableau, identifiants externes
+      (IMDb/TMDb) et agrégats de notes/tags résolus.
+    columns:
+      - name: movie_id
+        description: Identifiant unique du film.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre du film.
+        data_tests:
+          - not_null
+      - name: release_year
+        description: >
+          Année de sortie, extraite du titre (NULL si le titre ne se termine pas par "(YYYY)" --
+          13 films sur ce jeu de données, ex : séries sans année).
+      - name: genres_list
+        description: Genres du film (tableau vide si "(no genres listed)" en source).
+        data_tests:
+          - not_null
+      - name: genre_count
+        description: Nombre de genres du film (0 si aucun).
+        data_tests:
+          - not_null
+      - name: imdb_id
+        description: Identifiant IMDb du film (sans le préfixe "tt").
+      - name: tmdb_id
+        description: Identifiant TMDb du film, le cas échéant.
+      - name: rating_count
+        description: Nombre de notes reçues par le film (NULL si aucune).
+      - name: avg_rating
+        description: Note moyenne reçue par le film (NULL si aucune note).
+      - name: tag_count
+        description: Nombre de tags posés sur le film (NULL si aucun).
+      - name: tags_list
+        description: Tags distincts posés sur le film (NULL si aucun).
+
+  - name: DIM_VIEWERS
+    description: >
+      Dimension utilisateur, avec agrégats d'activité (notes, tags). Nommée DIM_VIEWERS (pas
+      DIM_USERS, déjà pris par Digital Gaming). Dimension entièrement DÉRIVÉE : pas de table
+      utilisateur source dans ce domaine, aucune information descriptive disponible (voir
+      dv_overview). Grain : une ligne par utilisateur ayant au moins une note ou un tag.
+    columns:
+      - name: user_id
+        description: Identifiant de l'utilisateur (dérivé de ratings/tags, pas d'une source dédiée).
+        data_tests:
+          - not_null
+          - unique
+      - name: ratings_count
+        description: Nombre de notes posées par l'utilisateur (NULL si aucune).
+      - name: avg_rating_given
+        description: Note moyenne attribuée par l'utilisateur (NULL si aucune note).
+      - name: first_rated_at
+        description: Date/heure de la première note de l'utilisateur, le cas échéant.
+      - name: last_rated_at
+        description: Date/heure de la dernière note de l'utilisateur, le cas échéant.
+      - name: tags_count
+        description: Nombre de tags posés par l'utilisateur (NULL si aucun).
+
+  - name: FTC_RATINGS
+    description: >
+      Table de faits des notes posées sur les films. Grain : une ligne = une note. Incrémental
+      insert_overwrite, partitionné par ANNÉE (toYear(rated_date), pas par mois comme FTC_SALES
+      -- les notes s'étalent sur 1996-2018, un partitionnement mensuel dépasserait la limite
+      ClickHouse de 100 partitions par bloc d'insert sur le chargement initial) ; chaque run
+      recharge entièrement les N derniers mois (var dv_incremental_lookback_months) pour capter
+      les corrections tardives.
+    columns:
+      - name: rating_id
+        description: Clé de substitution (hash de user_id/movie_id, pas de clé source).
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant noté le film.
+        data_tests:
+          - not_null
+      - name: movie_id
+        description: Film noté.
+        data_tests:
+          - not_null
+      - name: rating
+        description: Note attribuée (0.5 à 5.0, par pas de 0.5).
+        data_tests:
+          - not_null
+      - name: rated_at
+        description: Date/heure de la note.
+        data_tests:
+          - not_null
+      - name: rated_date
+        description: Date de la note (jour), utilisée comme clé de partitionnement mensuel.
+        data_tests:
+          - not_null
+
+  - name: FTC_TAGS
+    description: >
+      Table de faits (quasi factless -- porte l'attribut "tag") des tags posés sur les films.
+      Grain : une ligne = un tag posé. Full rebuild (pas d'incrémental), volume faible.
+    columns:
+      - name: tag_id
+        description: Clé de substitution (hash de user_id/movie_id/tag, pas de clé source).
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Utilisateur ayant posé le tag.
+        data_tests:
+          - not_null
+      - name: movie_id
+        description: Film tagué.
+        data_tests:
+          - not_null
+      - name: tag
+        description: Texte libre du tag.
+        data_tests:
+          - not_null
+      - name: tagged_at
+        description: Date/heure du tag.
+        data_tests:
+          - not_null

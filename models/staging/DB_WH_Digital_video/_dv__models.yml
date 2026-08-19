@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: stg_dv_movie
+    description: Staging des films (movies) du domaine Digital Video.
+    columns:
+      - name: movie_id
+        description: Identifiant unique du film.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre du film (année de sortie généralement incluse entre parenthèses).
+        data_tests:
+          - not_null
+      - name: genres
+        description: >
+          Genres du film, chaîne pipe-délimitée (ex : "Adventure|Comedy"). "(no genres listed)"
+          si aucun genre renseigné. Éclaté en tableau dans int_dv_movies.
+        data_tests:
+          - not_null
+
+  - name: stg_dv_link
+    description: Staging des identifiants externes (links) du domaine Digital Video.
+    columns:
+      - name: movie_id
+        description: Film concerné.
+        data_tests:
+          - not_null
+          - unique
+      - name: imdb_id
+        description: Identifiant IMDb du film (sans le préfixe "tt").
+        data_tests:
+          - not_null
+      - name: tmdb_id
+        description: Identifiant TMDb du film, le cas échéant.
+
+  - name: stg_dv_rating
+    description: Staging des notes (ratings) du domaine Digital Video.
+    columns:
+      - name: user_id
+        description: Utilisateur ayant noté le film.
+        data_tests:
+          - not_null
+      - name: movie_id
+        description: Film noté.
+        data_tests:
+          - not_null
+      - name: rating
+        description: Note attribuée (0.5 à 5.0, par pas de 0.5).
+        data_tests:
+          - not_null
+      - name: rated_at
+        description: Date/heure de la note.
+        data_tests:
+          - not_null
+
+  - name: stg_dv_tag
+    description: Staging des tags (tags) du domaine Digital Video.
+    columns:
+      - name: user_id
+        description: Utilisateur ayant posé le tag.
+        data_tests:
+          - not_null
+      - name: movie_id
+        description: Film tagué.
+        data_tests:
+          - not_null
+      - name: tag
+        description: Texte libre du tag.
+        data_tests:
+          - not_null
+      - name: tagged_at
+        description: Date/heure du tag.
+        data_tests:
+          - not_null

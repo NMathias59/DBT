@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: DB_WH_Digital_video
+    schema: DB_WH_DIGITAL_VIDEO
+    description: "{{ doc('dv_overview') }}"
+    tables:
+      - name: movies
+      - name: links
+      - name: ratings
+      - name: tags

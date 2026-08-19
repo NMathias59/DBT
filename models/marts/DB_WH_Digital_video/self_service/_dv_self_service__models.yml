@@ -1,0 +1,151 @@
+version: 2
+
+models:
+  - name: movie_ratings_analysis
+    description: >
+      Notes enrichies pour l'analyse self-service : calendrier, film (titre/année/genres), écart
+      à la moyenne du film. Une ligne = une note (même grain que FTC_RATINGS).
+
+      {{ doc('dv_self_service_overview') }}
+    columns:
+      - name: rating_id
+        description: Identifiant unique de la note.
+        data_tests:
+          - not_null
+          - unique
+      - name: rated_at
+        description: Date/heure de la note.
+        data_tests:
+          - not_null
+      - name: rated_date
+        description: Date de la note (jour).
+        data_tests:
+          - not_null
+      - name: rated_year
+        description: Année de la note.
+        data_tests:
+          - not_null
+      - name: rated_quarter
+        description: Trimestre de la note.
+        data_tests:
+          - not_null
+      - name: rated_month
+        description: Mois de la note (1-12).
+        data_tests:
+          - not_null
+      - name: rated_month_name
+        description: Nom du mois de la note.
+        data_tests:
+          - not_null
+      - name: rated_is_weekend
+        description: Indique si la note a été posée un week-end.
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Utilisateur ayant noté le film.
+        data_tests:
+          - not_null
+      - name: movie_id
+        description: Film noté.
+        data_tests:
+          - not_null
+      - name: movie_title
+        description: Titre du film.
+        data_tests:
+          - not_null
+      - name: movie_release_year
+        description: Année de sortie du film, le cas échéant.
+      - name: movie_genres
+        description: Genres du film.
+      - name: rating
+        description: Note attribuée.
+        data_tests:
+          - not_null
+      - name: movie_avg_rating
+        description: Note moyenne reçue par le film, tous utilisateurs confondus.
+      - name: rating_vs_movie_avg
+        description: >
+          Écart entre cette note et la moyenne du film (positif = au-dessus de la moyenne,
+          négatif = en dessous).
+
+  - name: genre_ratings_trends
+    description: >
+      Volume et note moyenne des évaluations par genre dans le temps. Grain : (genre,
+      month_start).
+
+      ATTENTION genre multi-valué : un film multi-genre compte dans chacun de ses genres (une
+      note dupliquée entre ses genres) -- rating_share_pct (volume) peut donc dépasser 100% en
+      sommant tous les genres d'un même mois, normal, pas un bug.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de genre/month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: genre
+        description: Genre concerné ('Unknown' si le film n'a aucun genre renseigné en source).
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: rating_count
+        description: Nombre de notes du mois pour ce genre (dupliqué entre genres d'un même film).
+        data_tests:
+          - not_null
+      - name: avg_rating
+        description: Note moyenne du mois pour ce genre.
+        data_tests:
+          - not_null
+      - name: total_rating_count
+        description: >
+          Vrai nombre total de notes du mois, tous genres confondus, sans double comptage.
+        data_tests:
+          - not_null
+      - name: rating_share_pct
+        description: Part du volume de notes du mois captée par ce genre (%). Voir avertissement >100%.
+        data_tests:
+          - not_null
+
+  - name: top_rated_movies
+    description: >
+      Classement des films par note pondérée façon IMDb (Bayesian average), pour ne pas laisser
+      un film à 1 note dominer un film à 500 notes. Grain : movie_id (films notés au moins une
+      fois uniquement, photo d'ensemble, pas de tendance mensuelle).
+    columns:
+      - name: movie_id
+        description: Film concerné.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre du film.
+        data_tests:
+          - not_null
+      - name: release_year
+        description: Année de sortie du film, le cas échéant.
+      - name: genres
+        description: Genres du film.
+      - name: rating_count
+        description: Nombre de notes reçues par le film.
+        data_tests:
+          - not_null
+      - name: avg_rating
+        description: Note moyenne brute reçue par le film.
+        data_tests:
+          - not_null
+      - name: weighted_rating
+        description: >
+          Note pondérée façon IMDb (Bayesian average, seuil m=20 notes). À utiliser pour tout
+          classement, PAS avg_rating seul.
+        data_tests:
+          - not_null

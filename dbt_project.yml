@@ -31,6 +31,9 @@ vars:
   # Nombre de mois (en plus du mois en cours) rechargés en entier à chaque run incrémental
   # insert_overwrite de FTC_TRACK_SALES, même logique que dg_incremental_lookback_months.
   dm_incremental_lookback_months: 1
+  # Nombre de mois (en plus du mois en cours) rechargés en entier à chaque run incrémental
+  # insert_overwrite de FTC_RATINGS, même logique que dg_incremental_lookback_months.
+  dv_incremental_lookback_months: 1
 
 # Configuring models
 models:
@@ -42,12 +45,16 @@ models:
         +schema: DB_WH_DIGITAL_GAMING
       DB_WH_Digital_music:
         +schema: DB_WH_DIGITAL_MUSIC
+      DB_WH_Digital_video:
+        +schema: DB_WH_DIGITAL_VIDEO
     intermediate:
       +materialized: view
       DB_WH_Digital_gaming:
         +schema: DB_WH_DIGITAL_GAMING
       DB_WH_Digital_music:
         +schema: DB_WH_DIGITAL_MUSIC
+      DB_WH_Digital_video:
+        +schema: DB_WH_DIGITAL_VIDEO
     marts:
       +materialized: table
       DB_WH_Digital_gaming:
@@ -64,3 +71,9 @@ models:
         self_service:
           +materialized: view
           +schema: DB_WH_DIGITAL_MUSIC_SELF_SERVICE
+      DB_WH_Digital_video:
+        core:
+          +schema: DB_WH_DIGITAL_VIDEO
+        self_service:
+          +materialized: view
+          +schema: DB_WH_DIGITAL_VIDEO_SELF_SERVICE
