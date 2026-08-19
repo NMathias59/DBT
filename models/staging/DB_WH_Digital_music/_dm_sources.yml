@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: DB_WH_Digital_music
+    schema: DB_WH_DIGITAL_MUSIC
+    description: "{{ doc('dm_overview') }}"
+    tables:
+      - name: artist
+      - name: album
+      - name: genre
+      - name: media_type
+      - name: track
+      - name: playlist
+      - name: playlist_track
+      - name: customer
+      - name: employee
+      - name: invoice
+      - name: invoice_line

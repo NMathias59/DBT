@@ -1,0 +1,244 @@
+version: 2
+
+models:
+  - name: stg_dm_artist
+    description: Staging des artistes (artist) du domaine Digital Music.
+    columns:
+      - name: artist_id
+        description: Identifiant unique de l'artiste.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom de l'artiste.
+
+  - name: stg_dm_album
+    description: Staging des albums (album) du domaine Digital Music.
+    columns:
+      - name: album_id
+        description: Identifiant unique de l'album.
+        data_tests:
+          - not_null
+          - unique
+      - name: title
+        description: Titre de l'album.
+        data_tests:
+          - not_null
+      - name: artist_id
+        description: Artiste ayant produit l'album.
+        data_tests:
+          - not_null
+
+  - name: stg_dm_genre
+    description: Staging des genres musicaux (genre) du domaine Digital Music.
+    columns:
+      - name: genre_id
+        description: Identifiant unique du genre.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du genre.
+
+  - name: stg_dm_media_type
+    description: Staging des types de média (media_type) du domaine Digital Music.
+    columns:
+      - name: media_type_id
+        description: Identifiant unique du type de média.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: "Nom du type de média (ex : MPEG audio, AAC audio file, ...)."
+
+  - name: stg_dm_track
+    description: Staging des pistes (track) du domaine Digital Music.
+    columns:
+      - name: track_id
+        description: Identifiant unique de la piste.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom de la piste.
+        data_tests:
+          - not_null
+      - name: album_id
+        description: Album auquel la piste appartient, le cas échéant.
+      - name: media_type_id
+        description: Type de média de la piste.
+        data_tests:
+          - not_null
+      - name: genre_id
+        description: Genre musical de la piste, le cas échéant.
+      - name: composer
+        description: Compositeur de la piste.
+      - name: milliseconds
+        description: Durée de la piste, en millisecondes.
+        data_tests:
+          - not_null
+      - name: bytes
+        description: Taille du fichier, en octets.
+      - name: unit_price
+        description: Prix unitaire de la piste.
+        data_tests:
+          - not_null
+
+  - name: stg_dm_playlist
+    description: Staging des playlists (playlist) du domaine Digital Music.
+    columns:
+      - name: playlist_id
+        description: Identifiant unique de la playlist.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom de la playlist.
+
+  - name: stg_dm_playlist_track
+    description: Staging de l'association playlists/pistes (playlist_track) du domaine Digital Music.
+    columns:
+      - name: playlist_id
+        description: Playlist associée.
+        data_tests:
+          - not_null
+      - name: track_id
+        description: Piste associée.
+        data_tests:
+          - not_null
+
+  - name: stg_dm_customer
+    description: Staging des clients (customer) du domaine Digital Music.
+    columns:
+      - name: customer_id
+        description: Identifiant unique du client.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Prénom du client.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Nom du client.
+        data_tests:
+          - not_null
+      - name: company
+        description: Société du client, le cas échéant.
+      - name: address
+        description: Adresse postale du client.
+      - name: city
+        description: Ville du client.
+      - name: state
+        description: État/région du client.
+      - name: country
+        description: Pays du client.
+      - name: postal_code
+        description: Code postal du client.
+      - name: phone
+        description: Numéro de téléphone du client.
+      - name: fax
+        description: Numéro de fax du client.
+      - name: email
+        description: Adresse e-mail du client.
+        data_tests:
+          - not_null
+      - name: support_rep_id
+        description: Employé du support rattaché au client, le cas échéant.
+
+  - name: stg_dm_employee
+    description: Staging des employés (employee) du domaine Digital Music.
+    columns:
+      - name: employee_id
+        description: Identifiant unique de l'employé.
+        data_tests:
+          - not_null
+          - unique
+      - name: last_name
+        description: Nom de l'employé.
+        data_tests:
+          - not_null
+      - name: first_name
+        description: Prénom de l'employé.
+        data_tests:
+          - not_null
+      - name: title
+        description: Titre/poste de l'employé.
+      - name: reports_to
+        description: Employé auquel celui-ci est rattaché hiérarchiquement, le cas échéant.
+      - name: birth_date
+        description: Date de naissance de l'employé.
+      - name: hire_date
+        description: Date d'embauche de l'employé.
+      - name: address
+        description: Adresse postale de l'employé.
+      - name: city
+        description: Ville de l'employé.
+      - name: state
+        description: État/région de l'employé.
+      - name: country
+        description: Pays de l'employé.
+      - name: postal_code
+        description: Code postal de l'employé.
+      - name: phone
+        description: Numéro de téléphone de l'employé.
+      - name: fax
+        description: Numéro de fax de l'employé.
+      - name: email
+        description: Adresse e-mail de l'employé.
+
+  - name: stg_dm_invoice
+    description: Staging des factures (invoice) du domaine Digital Music.
+    columns:
+      - name: invoice_id
+        description: Identifiant unique de la facture.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Client facturé.
+        data_tests:
+          - not_null
+      - name: invoice_date
+        description: Date/heure d'émission de la facture.
+        data_tests:
+          - not_null
+      - name: billing_address
+        description: Adresse de facturation.
+      - name: billing_city
+        description: Ville de facturation.
+      - name: billing_state
+        description: État/région de facturation.
+      - name: billing_country
+        description: Pays de facturation.
+      - name: billing_postal_code
+        description: Code postal de facturation.
+      - name: total
+        description: Montant total de la facture.
+        data_tests:
+          - not_null
+
+  - name: stg_dm_invoice_line
+    description: Staging des lignes de facture (invoice_line) du domaine Digital Music.
+    columns:
+      - name: invoice_line_id
+        description: Identifiant unique de la ligne de facture.
+        data_tests:
+          - not_null
+          - unique
+      - name: invoice_id
+        description: Facture à laquelle la ligne est rattachée.
+        data_tests:
+          - not_null
+      - name: track_id
+        description: Piste facturée.
+        data_tests:
+          - not_null
+      - name: unit_price
+        description: Prix unitaire facturé.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Quantité facturée.
+        data_tests:
+          - not_null
