@@ -65,5 +65,7 @@ $env:DBT_PROFILES_DIR = "."
 - [x] Sources et modèles staging — Digital Music (11 modèles staging + data tests not_null/unique)
 - [ ] Sources et modèles staging — autres domaines (Digital Video, Physical Gaming/Music/Video,
       Group Procurement, IMDB, Market Intelligence, Seo Marketing, Support Reference)
-- [ ] Modèles intermediate
+- [x] Modèles intermediate — Digital Music (int_dm_tracks, int_dm_invoice_lines,
+      int_dm_customer_activity, int_dm_playlists, int_dm_employees)
+- [ ] Modèles intermediate — autres domaines
 - [ ] Modèles marts

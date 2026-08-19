@@ -43,6 +43,8 @@ models:
       +materialized: view
       DB_WH_Digital_gaming:
         +schema: DB_WH_DIGITAL_GAMING
+      DB_WH_Digital_music:
+        +schema: DB_WH_DIGITAL_MUSIC
     marts:
       +materialized: table
       DB_WH_Digital_gaming:
