@@ -68,4 +68,9 @@ $env:DBT_PROFILES_DIR = "."
 - [x] Modèles intermediate — Digital Music (int_dm_tracks, int_dm_invoice_lines,
       int_dm_customer_activity, int_dm_playlists, int_dm_employees)
 - [ ] Modèles intermediate — autres domaines
-- [ ] Modèles marts
+- [x] Modèles marts — Digital Music (core : DIM_ARTISTS/DIM_ALBUMS/DIM_TRACKS/DIM_CUSTOMERS/
+      DIM_EMPLOYEES/DIM_PLAYLISTS/FTC_TRACK_SALES/FTC_PLAYLIST_TRACKS ; self_service :
+      track_sales_analysis, monthly_revenue_trends, genre_revenue_trends,
+      employee_sales_performance)
+- [ ] Modèles marts — autres domaines (Digital Gaming : fichiers présents mais jamais exécutés,
+      cf. absence de `+schema` sous `marts.DB_WH_Digital_gaming` dans dbt_project.yml)
