@@ -1,0 +1,215 @@
+version: 2
+
+models:
+  - name: track_sales_analysis
+    description: >
+      Ventes de pistes enrichies pour l'analyse self-service : calendrier, client, piste/album/
+      artiste/genre. Une ligne = une vente (même grain que FTC_TRACK_SALES).
+
+      {{ doc('dm_self_service_overview') }}
+    columns:
+      - name: sale_id
+        description: Identifiant unique de la vente.
+        data_tests:
+          - not_null
+          - unique
+      - name: sale_at
+        description: Date/heure de la vente.
+        data_tests:
+          - not_null
+      - name: sale_date
+        description: Date de la vente (jour).
+        data_tests:
+          - not_null
+      - name: sale_year
+        description: Année de la vente.
+        data_tests:
+          - not_null
+      - name: sale_quarter
+        description: Trimestre de la vente.
+        data_tests:
+          - not_null
+      - name: sale_month
+        description: Mois de la vente (1-12).
+        data_tests:
+          - not_null
+      - name: sale_month_name
+        description: Nom du mois de la vente.
+        data_tests:
+          - not_null
+      - name: sale_is_weekend
+        description: Indique si la vente a eu lieu un week-end.
+        data_tests:
+          - not_null
+      - name: customer_id
+        description: Client acheteur.
+        data_tests:
+          - not_null
+      - name: customer_first_name
+        description: Prénom du client acheteur.
+        data_tests:
+          - not_null
+      - name: customer_last_name
+        description: Nom du client acheteur.
+        data_tests:
+          - not_null
+      - name: customer_country
+        description: Pays du client acheteur.
+      - name: track_id
+        description: Piste vendue.
+        data_tests:
+          - not_null
+      - name: track_name
+        description: Nom de la piste vendue.
+        data_tests:
+          - not_null
+      - name: album_title
+        description: Titre de l'album de la piste, le cas échéant.
+      - name: artist_name
+        description: Nom de l'artiste de la piste, le cas échéant.
+      - name: genre_name
+        description: Genre de la piste, le cas échéant.
+      - name: media_type_name
+        description: Type de média de la piste.
+      - name: unit_price
+        description: Prix unitaire facturé.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Quantité vendue.
+        data_tests:
+          - not_null
+      - name: sale_amount
+        description: Montant de la vente.
+        data_tests:
+          - not_null
+
+  - name: monthly_revenue_trends
+    description: >
+      Revenu global mensuel, pistes vendues, clients distincts, cumul à date et 12 mois glissants.
+      Grain : month_start. Grille mensuelle complète (mois sans vente = 0).
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: revenue_usd
+        description: Revenu du mois. 0 si aucune vente ce mois.
+        data_tests:
+          - not_null
+      - name: tracks_sold
+        description: Nombre de pistes vendues ce mois-là.
+        data_tests:
+          - not_null
+      - name: distinct_customers
+        description: Nombre de clients distincts ayant acheté ce mois-là.
+        data_tests:
+          - not_null
+      - name: cumulative_revenue_usd
+        description: Revenu cumulé depuis le premier mois de vente.
+        data_tests:
+          - not_null
+      - name: rolling_12m_revenue_usd
+        description: Revenu des 12 derniers mois calendaires glissants.
+        data_tests:
+          - not_null
+
+  - name: genre_revenue_trends
+    description: >
+      Tendance de part de marché par genre dans le temps. Grain : (genre, month_start). Une piste
+      a exactement un genre (pas de multi-valorisation, contrairement à Digital Gaming) : pas de
+      double comptage, la somme des revenue_share_pct de tous les genres sur un même mois fait
+      ~100%.
+    columns:
+      - name: row_id
+        description: Clé de substitution (hash de genre/month_start).
+        data_tests:
+          - not_null
+          - unique
+      - name: genre
+        description: Genre concerné ('Unknown' si la piste n'a pas de genre renseigné en source).
+        data_tests:
+          - not_null
+      - name: month_start
+        description: Premier jour du mois concerné.
+        data_tests:
+          - not_null
+      - name: year
+        description: Année du mois concerné.
+        data_tests:
+          - not_null
+      - name: month_num
+        description: Mois (1-12) du mois concerné.
+        data_tests:
+          - not_null
+      - name: revenue_usd
+        description: Revenu du mois pour ce genre.
+        data_tests:
+          - not_null
+      - name: units_sold
+        description: Nombre de pistes vendues du mois pour ce genre.
+        data_tests:
+          - not_null
+      - name: total_revenue_usd
+        description: Vrai revenu total du mois, tous genres confondus.
+        data_tests:
+          - not_null
+      - name: revenue_share_pct
+        description: Part du revenu total captée par ce genre ce mois-là (%).
+        data_tests:
+          - not_null
+      - name: revenue_share_pct_prior_month
+        description: revenue_share_pct du mois précédent pour ce genre (NULL si premier mois disponible).
+      - name: revenue_share_pct_change_mom
+        description: >
+          Variation de revenue_share_pct vs le mois précédent (points de %). NULL si premier mois
+          disponible pour ce genre.
+
+  - name: employee_sales_performance
+    description: >
+      Revenu généré par employé (support commercial), via les clients dont il a la charge
+      (customer.support_rep_id). Grain : employee_id (photo d'ensemble, pas de tendance
+      mensuelle).
+    columns:
+      - name: employee_id
+        description: Employé concerné.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Prénom de l'employé.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Nom de l'employé.
+        data_tests:
+          - not_null
+      - name: title
+        description: Titre/poste de l'employé.
+      - name: customers_supported
+        description: Nombre de clients rattachés à cet employé (0 si aucun).
+        data_tests:
+          - not_null
+      - name: revenue_generated
+        description: Revenu total généré par les clients rattachés (0 si aucun client).
+        data_tests:
+          - not_null
+      - name: invoices_generated
+        description: Nombre total de factures des clients rattachés (0 si aucun client).
+        data_tests:
+          - not_null
+      - name: avg_revenue_per_customer
+        description: revenue_generated / customers_supported. NULL si aucun client rattaché.

@@ -1,0 +1,252 @@
+version: 2
+
+models:
+  - name: DIM_ARTISTS
+    description: >
+      Dimension artiste (catalogue). Grain : une ligne par artiste. Type 1 (pas d'historisation),
+      full rebuild à chaque run vu le faible volume. album_count/track_count agrégés.
+    columns:
+      - name: artist_id
+        description: Identifiant unique de l'artiste.
+        data_tests:
+          - not_null
+          - unique
+      - name: artist_name
+        description: Nom de l'artiste.
+      - name: album_count
+        description: Nombre d'albums de l'artiste (0 si aucun).
+        data_tests:
+          - not_null
+      - name: track_count
+        description: Nombre de pistes de l'artiste, tous albums confondus (0 si aucune).
+        data_tests:
+          - not_null
+
+  - name: DIM_ALBUMS
+    description: >
+      Dimension album, avec l'artiste résolu en clair et des agrégats de pistes. Grain : une
+      ligne par album.
+    columns:
+      - name: album_id
+        description: Identifiant unique de l'album.
+        data_tests:
+          - not_null
+          - unique
+      - name: album_title
+        description: Titre de l'album.
+        data_tests:
+          - not_null
+      - name: artist_id
+        description: Artiste ayant produit l'album.
+        data_tests:
+          - not_null
+      - name: artist_name
+        description: Nom de l'artiste.
+      - name: track_count
+        description: Nombre de pistes de l'album.
+      - name: total_duration_ms
+        description: Durée totale de l'album, en millisecondes.
+
+  - name: DIM_TRACKS
+    description: >
+      Dimension piste (catalogue complet). Grain : une ligne par piste, avec album/artiste/genre/
+      type de média résolus en clair.
+    columns:
+      - name: track_id
+        description: Identifiant unique de la piste.
+        data_tests:
+          - not_null
+          - unique
+      - name: track_name
+        description: Nom de la piste.
+        data_tests:
+          - not_null
+      - name: composer
+        description: Compositeur de la piste.
+      - name: milliseconds
+        description: Durée de la piste, en millisecondes.
+        data_tests:
+          - not_null
+      - name: bytes
+        description: Taille du fichier, en octets.
+      - name: unit_price
+        description: Prix catalogue de la piste.
+        data_tests:
+          - not_null
+      - name: album_id
+        description: Album auquel la piste appartient, le cas échéant.
+      - name: album_title
+        description: Titre de l'album, le cas échéant.
+      - name: artist_id
+        description: Artiste de la piste, le cas échéant (résolu via l'album).
+      - name: artist_name
+        description: Nom de l'artiste, le cas échéant.
+      - name: genre_id
+        description: Genre de la piste, le cas échéant.
+      - name: genre_name
+        description: Nom du genre, le cas échéant.
+      - name: media_type_id
+        description: Type de média de la piste.
+        data_tests:
+          - not_null
+      - name: media_type_name
+        description: Nom du type de média.
+
+  - name: DIM_CUSTOMERS
+    description: >
+      Dimension client, avec agrégats d'achat (nb factures, total dépensé, pistes achetées,
+      première/dernière commande). Grain : une ligne par client. Full rebuild à chaque run.
+    columns:
+      - name: customer_id
+        description: Identifiant unique du client.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Prénom du client.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Nom du client.
+        data_tests:
+          - not_null
+      - name: country
+        description: Pays du client.
+      - name: support_rep_id
+        description: Employé du support rattaché au client, le cas échéant.
+      - name: total_invoices
+        description: Nombre de factures du client (0 si aucune).
+        data_tests:
+          - not_null
+      - name: total_spent
+        description: Montant total dépensé par le client (0 si aucune facture).
+        data_tests:
+          - not_null
+      - name: tracks_purchased
+        description: Nombre de pistes achetées par le client (0 si aucune).
+      - name: first_purchase_at
+        description: Date/heure de la première facture, le cas échéant.
+      - name: last_purchase_at
+        description: Date/heure de la dernière facture, le cas échéant.
+
+  - name: DIM_EMPLOYEES
+    description: >
+      Dimension employé, avec le manager résolu en clair (hiérarchie interne) et le nombre de
+      clients rattachés. Grain : une ligne par employé.
+    columns:
+      - name: employee_id
+        description: Identifiant unique de l'employé.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Prénom de l'employé.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Nom de l'employé.
+        data_tests:
+          - not_null
+      - name: title
+        description: Titre/poste de l'employé.
+      - name: hire_date
+        description: Date d'embauche de l'employé.
+      - name: reports_to
+        description: Employé auquel celui-ci est rattaché hiérarchiquement, le cas échéant.
+      - name: manager_first_name
+        description: Prénom du manager, le cas échéant.
+      - name: manager_last_name
+        description: Nom du manager, le cas échéant.
+      - name: customers_supported
+        description: Nombre de clients rattachés à cet employé (0 si aucun).
+        data_tests:
+          - not_null
+
+  - name: DIM_PLAYLISTS
+    description: >
+      Dimension playlist, avec nb de pistes/durée totale/liste des pistes agrégés. Grain : une
+      ligne par playlist.
+    columns:
+      - name: playlist_id
+        description: Identifiant unique de la playlist.
+        data_tests:
+          - not_null
+          - unique
+      - name: playlist_name
+        description: Nom de la playlist.
+      - name: track_count
+        description: Nombre de pistes de la playlist (0 si aucune).
+      - name: total_duration_ms
+        description: Durée totale de la playlist, en millisecondes.
+      - name: track_ids
+        description: Liste des identifiants de pistes de la playlist.
+
+  - name: FTC_TRACK_SALES
+    description: >
+      Table de faits des ventes de pistes. Grain : une ligne = une piste vendue (invoice_line).
+      Nommé FTC_TRACK_SALES (pas FTC_SALES, déjà pris par Digital Gaming) pour éviter toute
+      collision de nom de modèle dbt. Incrémental insert_overwrite, partitionné par mois
+      (toYYYYMM(sale_date)) ; chaque run recharge entièrement les N derniers mois
+      (var dm_incremental_lookback_months) pour capter les corrections tardives.
+    columns:
+      - name: sale_id
+        description: Identifiant unique de la vente (= invoice_line_id).
+        data_tests:
+          - not_null
+          - unique
+      - name: invoice_id
+        description: Facture à laquelle la vente est rattachée (une facture peut contenir plusieurs ventes).
+        data_tests:
+          - not_null
+      - name: customer_id
+        description: Client acheteur.
+        data_tests:
+          - not_null
+      - name: track_id
+        description: Piste vendue.
+        data_tests:
+          - not_null
+      - name: track_name
+        description: Nom de la piste vendue.
+        data_tests:
+          - not_null
+      - name: unit_price
+        description: Prix unitaire facturé.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Quantité vendue.
+        data_tests:
+          - not_null
+      - name: sale_amount
+        description: Montant de la vente (unit_price * quantity).
+        data_tests:
+          - not_null
+      - name: sale_at
+        description: Date/heure de la vente.
+        data_tests:
+          - not_null
+      - name: sale_date
+        description: Date de la vente (jour), utilisée comme clé de partitionnement mensuel.
+        data_tests:
+          - not_null
+
+  - name: FTC_PLAYLIST_TRACKS
+    description: >
+      Table de faits (factless) des pistes dans les playlists. Grain : une ligne = une piste
+      présente dans une playlist. Signal d'engagement, utile pour croiser popularité en playlist
+      et ventes (FTC_TRACK_SALES).
+    columns:
+      - name: playlist_track_id
+        description: Clé de substitution (hash de playlist_id/track_id, pas de clé source).
+        data_tests:
+          - not_null
+          - unique
+      - name: playlist_id
+        description: Playlist associée.
+        data_tests:
+          - not_null
+      - name: track_id
+        description: Piste associée.
+        data_tests:
+          - not_null

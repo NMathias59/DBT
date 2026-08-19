@@ -28,6 +28,9 @@ vars:
   # table de taux historique par période pour l'instant -- à remplacer par une vraie source de
   # taux si la précision historique devient nécessaire.
   dg_usd_to_cad_rate: 1.35
+  # Nombre de mois (en plus du mois en cours) rechargés en entier à chaque run incrémental
+  # insert_overwrite de FTC_TRACK_SALES, même logique que dg_incremental_lookback_months.
+  dm_incremental_lookback_months: 1
 
 # Configuring models
 models:
@@ -55,3 +58,9 @@ models:
           # fait une vraie agrégation (GROUP BY) consommée par beaucoup d'utilisateurs concurrents.
           +materialized: view
           +schema: DB_WH_DIGITAL_GAMING_SELF_SERVICE
+      DB_WH_Digital_music:
+        core:
+          +schema: DB_WH_DIGITAL_MUSIC
+        self_service:
+          +materialized: view
+          +schema: DB_WH_DIGITAL_MUSIC_SELF_SERVICE
