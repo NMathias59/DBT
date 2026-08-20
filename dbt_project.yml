@@ -64,6 +64,8 @@ models:
     marts:
       +materialized: table
       DB_WH_Digital_gaming:
+        core:
+          +schema: DB_WH_DIGITAL_GAMING
         self_service:
           # Couche self-service : vues fines sur les FTC_*/DIM_* déjà matérialisées en table dans
           # core/ (jointures/renommages peu coûteux sur ClickHouse) -> toujours à jour, pas de
